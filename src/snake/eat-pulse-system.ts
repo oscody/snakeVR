@@ -44,7 +44,11 @@ const UP = new Vector3(0, 1, 0);
 const tmpQuat = new Quaternion();
 tmpQuat.setFromUnitVectors(FORWARD, UP);
 
-export function spawnEatPulse(world: World, parent: Entity, position: Vector3): Entity {
+export function spawnEatPulse(
+  world: World,
+  parent: Entity,
+  position: Vector3,
+): Entity {
   const geometry = new RingGeometry(0.05, 0.09, 32);
   const material = new ShaderMaterial({
     uniforms: {

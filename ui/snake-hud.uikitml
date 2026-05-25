@@ -1,0 +1,121 @@
+<style>
+  #panel-container {
+    align-items: stretch;
+    padding: 1.5;
+    width: 60;
+    display: flex;
+    flex-direction: column;
+    background-color: #0a0f1f;
+    border-color: #46e0c0;
+    border-width: 0.15;
+    border-radius: 2.4;
+  }
+
+  .title {
+    font-size: 1.8;
+    font-weight: medium;
+    color: #46e0c0;
+    text-align: center;
+    margin-bottom: 0.4;
+  }
+
+  .stats-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-bottom: 0.9;
+  }
+
+  .stat-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    flex-basis: 0;
+  }
+
+  .stat-label {
+    font-size: 1.1;
+    color: #6d7792;
+    margin-bottom: 0.2;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 3.4;
+    font-weight: medium;
+    color: #f5f7ff;
+    text-align: center;
+  }
+
+  #score-value {
+    color: #7ff5e6;
+  }
+
+  #length-value {
+    color: #3fe07a;
+  }
+
+  #speed-value {
+    color: #ffb020;
+  }
+
+  #status-text {
+    font-size: 1.4;
+    color: #9aa4d4;
+    text-align: center;
+    margin-bottom: 0.8;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.6;
+  }
+
+  .btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    padding: 1;
+    border-radius: 1.4;
+    border-width: 0.08;
+    font-size: 1.6;
+    font-weight: medium;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  #btn-action {
+    background-color: #3fe07a;
+    color: #051a0c;
+    border-color: #3fe07a;
+  }
+
+  #btn-exit {
+    background-color: #0c1428;
+    color: #46e0c0;
+    border-color: #46e0c0;
+  }
+</style>
+<div id="panel-container">
+  <span class="title">SERPENT GRID XR</span>
+  <div class="stats-row">
+    <div class="stat-block">
+      <span class="stat-label">SCORE</span>
+      <span id="score-value" class="stat-value">000</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">LENGTH</span>
+      <span id="length-value" class="stat-value">1</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">SPEED</span>
+      <span id="speed-value" class="stat-value">0%</span>
+    </div>
+  </div>
+  <span id="status-text">Move to begin</span>
+  <div class="row">
+    <button id="btn-action" class="btn">NEW GAME</button>
+    <button id="btn-exit" class="btn">EXIT TO MENU</button>
+  </div>
+</div>
