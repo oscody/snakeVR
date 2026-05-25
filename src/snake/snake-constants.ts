@@ -22,3 +22,9 @@ export const DIFFICULTY: Record<Difficulty, DifficultyParams> = {
   normal: { tickBase: 0.34, minTick: 0.12, tickStep: 0.025 },
   hard: { tickBase: 0.2, minTick: 0.08, tickStep: 0.036 },
 };
+
+export const CORRUPTION_SHRINK = 1;
+export const CORRUPTION_LIFETIME = 999.0;
+export const CORRUPTION_MIN_LENGTH = 2;
+export const CORRUPTION_PER_ORB = 2;
+export const CORRUPTION_SPAWN_RADIUS = 3;

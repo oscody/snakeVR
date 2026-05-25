@@ -1,15 +1,22 @@
 import {
   AudioUtils,
   createSystem,
+  Entity,
   InputComponent,
   Mesh,
   Vector3,
   VisibilityState,
 } from "@iwsdk/core";
 
+import { CorruptionBlock, spawnCorruptionBlock } from "./corruption-block.js";
 import { spawnEatPulse } from "./eat-pulse-system.js";
 import {
   BOARD,
+  CORRUPTION_LIFETIME,
+  CORRUPTION_MIN_LENGTH,
+  CORRUPTION_PER_ORB,
+  CORRUPTION_SHRINK,
+  CORRUPTION_SPAWN_RADIUS,
   DIFFICULTY,
   GRID,
   PLAYER_Y,
@@ -60,6 +67,9 @@ export class SnakeGameSystem extends createSystem({}) {
   private newGameSeen = 0;
   private tmpDir = new Vector3();
 
+  // --- corruption-block state ---
+  private corruptionEntities: Entity[] = [];
+
   init() {
     this.prevPlayerY = this.world.player.position.y;
     this.world.player.position.y = PLAYER_Y;
@@ -85,6 +95,7 @@ export class SnakeGameSystem extends createSystem({}) {
 
     this.cleanupFuncs.push(() => {
       this.world.player.position.y = this.prevPlayerY;
+      this.disposeAllCorruption();
       disposeSnakeScene(this.refs);
     });
 
@@ -135,6 +146,8 @@ export class SnakeGameSystem extends createSystem({}) {
     this.gameOver = false;
     this.started = false;
 
+    this.disposeAllCorruption();
+
     state.score.value = 0;
     state.length.value = this.body.length;
     state.speedPct.value = 0;
@@ -165,6 +178,11 @@ export class SnakeGameSystem extends createSystem({}) {
       }
     }
 
+    if (this.corruptionEntities.length && this.isCorruptionCell(nx, nz)) {
+      this.handleCorruptionHit(nx, nz);
+      return;
+    }
+
     this.prevBody = this.body.map((cell) => ({ ...cell }));
     this.body.unshift({ x: nx, z: nz });
     if (willEat) {
@@ -181,7 +199,11 @@ export class SnakeGameSystem extends createSystem({}) {
       );
       state.length.value = this.body.length;
       this.publishSpeed();
+      this.disposeAllCorruption();
       this.spawnOrb();
+      if (this.body.length >= CORRUPTION_MIN_LENGTH) {
+        this.spawnCorruptionPairNearOrb();
+      }
       AudioUtils.play(this.refs.orbEntity);
       this.ensureSegmentMeshes();
     } else {
@@ -244,6 +266,105 @@ export class SnakeGameSystem extends createSystem({}) {
 
   private onSnake(x: number, z: number): boolean {
     return this.body.some((cell) => cell.x === x && cell.z === z);
+  }
+
+  // --- corruption block --------------------------------------------------
+
+  /**
+   * Pick up to CORRUPTION_PER_ORB random cells within
+   * CORRUPTION_SPAWN_RADIUS (Chebyshev) of the current orb, skipping the
+   * orb's own cell, the snake body, and out-of-bounds. Spawn a block at each.
+   */
+  private spawnCorruptionPairNearOrb() {
+    const candidates: Cell[] = [];
+    const r = CORRUPTION_SPAWN_RADIUS;
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dz = -r; dz <= r; dz++) {
+        if (dx === 0 && dz === 0) continue;
+        const x = this.orb.x + dx;
+        const z = this.orb.z + dz;
+        if (x < 0 || x >= GRID || z < 0 || z >= GRID) continue;
+        if (this.onSnake(x, z)) continue;
+        candidates.push({ x, z });
+      }
+    }
+    const n = Math.min(CORRUPTION_PER_ORB, candidates.length);
+    for (let i = 0; i < n; i++) {
+      const j = i + Math.floor(Math.random() * (candidates.length - i));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      const cell = candidates[i];
+      const worldPos = new Vector3(this.lx(cell.x), SEG_Y, this.lz(cell.z));
+      this.corruptionEntities.push(
+        spawnCorruptionBlock(
+          this.world,
+          this.refs.boardEntity,
+          cell,
+          worldPos,
+          CORRUPTION_LIFETIME,
+        ),
+      );
+    }
+  }
+
+  private isCorruptionCell(x: number, z: number): boolean {
+    for (const e of this.corruptionEntities) {
+      if (!e.active) continue;
+      if (
+        (e.getValue(CorruptionBlock, "cellX") as number) === x &&
+        (e.getValue(CorruptionBlock, "cellZ") as number) === z
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Snake head hit a corruption block: dispose only that block, lop off
+   * CORRUPTION_SHRINK tail segments, and end the game if that empties the
+   * body. Other blocks in the pair stay until the orb is eaten.
+   */
+  private handleCorruptionHit(nx: number, nz: number) {
+    // Find the specific block on (nx, nz) and dispose it.
+    for (let i = 0; i < this.corruptionEntities.length; i++) {
+      const e = this.corruptionEntities[i];
+      if (!e.active) continue;
+      if (
+        (e.getValue(CorruptionBlock, "cellX") as number) === nx &&
+        (e.getValue(CorruptionBlock, "cellZ") as number) === nz
+      ) {
+        e.dispose();
+        this.corruptionEntities.splice(i, 1);
+        break;
+      }
+    }
+
+    // Slice tail segments; head still advances onto the block's old cell.
+    this.prevBody = this.body.map((cell) => ({ ...cell }));
+    this.body.unshift({ x: nx, z: nz });
+    const overshoot = CORRUPTION_SHRINK + 1; // +1 because we just pushed the head
+    const trim = Math.min(overshoot, this.body.length);
+    this.body.length = this.body.length - trim + 1; // keep the head
+
+    AudioUtils.play(this.refs.gameOverAudio);
+
+    if (this.body.length <= 0) {
+      this.endGame();
+      return;
+    }
+
+    const state = getSnakeState(this.world);
+    state.length.value = this.body.length;
+    if (this.prevBody.length > this.body.length) {
+      this.prevBody.length = this.body.length;
+    }
+  }
+
+  private disposeAllCorruption() {
+    for (const e of this.corruptionEntities) {
+      if (e.active) e.dispose();
+    }
+    this.corruptionEntities.length = 0;
   }
 
   // --- rendering ---------------------------------------------------------

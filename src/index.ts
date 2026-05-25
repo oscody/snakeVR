@@ -8,6 +8,7 @@ import {
 
 import { requestedGame, type GameId } from "./game-hub.js";
 import { MenuPanelSystem } from "./menu-panel-system.js";
+import { CorruptionBlockSystem } from "./snake/corruption-block.js";
 import { EatPulseSystem } from "./snake/eat-pulse-system.js";
 import { SnakeGameSystem } from "./snake/snake-game-system.js";
 import { SnakePanelSystem } from "./snake/snake-panel-system.js";
@@ -53,10 +54,12 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
     world
       .registerSystem(SnakeGameSystem, { priority: -5 })
       .registerSystem(EatPulseSystem, { priority: 0 })
+      .registerSystem(CorruptionBlockSystem, { priority: 0 })
       .registerSystem(SnakePanelSystem, { priority: 5 });
   };
   const stopSnake = () => {
     world.unregisterSystem(SnakePanelSystem);
+    world.unregisterSystem(CorruptionBlockSystem);
     world.unregisterSystem(EatPulseSystem);
     world.unregisterSystem(SnakeGameSystem);
   };
