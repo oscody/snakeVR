@@ -1,0 +1,593 @@
+{
+  "element": {
+    "type": "container",
+    "sourceTag": "div",
+    "children": [
+      {
+        "sourceTag": "span",
+        "type": "custom",
+        "children": [
+          "SERPENT GRID XR"
+        ],
+        "properties": {
+          "class": "title"
+        },
+        "dataUid": "uid-2"
+      },
+      {
+        "type": "container",
+        "sourceTag": "div",
+        "children": [
+          {
+            "type": "container",
+            "sourceTag": "div",
+            "children": [
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "SCORE"
+                ],
+                "properties": {
+                  "class": "stat-label"
+                },
+                "dataUid": "uid-5"
+              },
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "000"
+                ],
+                "properties": {
+                  "id": "score-value",
+                  "class": "stat-value"
+                },
+                "dataUid": "uid-6"
+              }
+            ],
+            "properties": {
+              "class": "stat-block"
+            },
+            "dataUid": "uid-4"
+          },
+          {
+            "type": "container",
+            "sourceTag": "div",
+            "children": [
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "LENGTH"
+                ],
+                "properties": {
+                  "class": "stat-label"
+                },
+                "dataUid": "uid-8"
+              },
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "1"
+                ],
+                "properties": {
+                  "id": "length-value",
+                  "class": "stat-value"
+                },
+                "dataUid": "uid-9"
+              }
+            ],
+            "properties": {
+              "class": "stat-block"
+            },
+            "dataUid": "uid-7"
+          },
+          {
+            "type": "container",
+            "sourceTag": "div",
+            "children": [
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "SPEED"
+                ],
+                "properties": {
+                  "class": "stat-label"
+                },
+                "dataUid": "uid-11"
+              },
+              {
+                "sourceTag": "span",
+                "type": "custom",
+                "children": [
+                  "0%"
+                ],
+                "properties": {
+                  "id": "speed-value",
+                  "class": "stat-value"
+                },
+                "dataUid": "uid-12"
+              }
+            ],
+            "properties": {
+              "class": "stat-block"
+            },
+            "dataUid": "uid-10"
+          }
+        ],
+        "properties": {
+          "class": "stats-row"
+        },
+        "dataUid": "uid-3"
+      },
+      {
+        "sourceTag": "span",
+        "type": "custom",
+        "children": [
+          "Move to begin"
+        ],
+        "properties": {
+          "id": "status-text"
+        },
+        "dataUid": "uid-13"
+      },
+      {
+        "type": "container",
+        "sourceTag": "div",
+        "children": [
+          {
+            "sourceTag": "button",
+            "type": "custom",
+            "children": [
+              "NEW GAME"
+            ],
+            "properties": {
+              "id": "btn-action",
+              "class": "btn"
+            },
+            "dataUid": "uid-15"
+          },
+          {
+            "sourceTag": "button",
+            "type": "custom",
+            "children": [
+              "EXIT TO MENU"
+            ],
+            "properties": {
+              "id": "btn-exit",
+              "class": "btn"
+            },
+            "dataUid": "uid-16"
+          }
+        ],
+        "properties": {
+          "class": "row"
+        },
+        "dataUid": "uid-14"
+      }
+    ],
+    "properties": {
+      "id": "panel-container"
+    },
+    "dataUid": "uid-1"
+  },
+  "classes": {
+    "title": {
+      "content": {
+        "fontSize": "1.8",
+        "fontWeight": "medium",
+        "color": "#46e0c0",
+        "textAlign": "center",
+        "marginBottom": "0.4"
+      }
+    },
+    "stats-row": {
+      "content": {
+        "display": "flex",
+        "flexDirection": "row",
+        "justifyContent": "space-around",
+        "marginBottom": "0.9"
+      }
+    },
+    "stat-block": {
+      "content": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "flexGrow": "1",
+        "flexBasis": "0"
+      }
+    },
+    "stat-label": {
+      "content": {
+        "fontSize": "1.1",
+        "color": "#6d7792",
+        "marginBottom": "0.2",
+        "textAlign": "center"
+      }
+    },
+    "stat-value": {
+      "content": {
+        "fontSize": "3.4",
+        "fontWeight": "medium",
+        "color": "#f5f7ff",
+        "textAlign": "center"
+      }
+    },
+    "row": {
+      "content": {
+        "display": "flex",
+        "flexDirection": "row",
+        "gap": "0.6"
+      }
+    },
+    "btn": {
+      "content": {
+        "flexGrow": "1",
+        "flexBasis": "0",
+        "padding": "1",
+        "borderRadius": 1.4,
+        "borderWidth": "0.08",
+        "fontSize": "1.6",
+        "fontWeight": "medium",
+        "textAlign": "center",
+        "cursor": "pointer"
+      }
+    },
+    "__id__panel-container": {
+      "content": {
+        "alignItems": "stretch",
+        "padding": "1.5",
+        "width": "60",
+        "display": "flex",
+        "flexDirection": "column",
+        "backgroundColor": "#0a0f1f",
+        "borderColor": "#46e0c0",
+        "borderWidth": "0.15",
+        "borderRadius": 2.4
+      }
+    },
+    "__id__score-value": {
+      "content": {
+        "color": "#7ff5e6"
+      }
+    },
+    "__id__length-value": {
+      "content": {
+        "color": "#3fe07a"
+      }
+    },
+    "__id__speed-value": {
+      "content": {
+        "color": "#ffb020"
+      }
+    },
+    "__id__status-text": {
+      "content": {
+        "fontSize": "1.4",
+        "color": "#9aa4d4",
+        "textAlign": "center",
+        "marginBottom": "0.8"
+      }
+    },
+    "__id__btn-action": {
+      "content": {
+        "backgroundColor": "#3fe07a",
+        "color": "#051a0c",
+        "borderColor": "#3fe07a"
+      }
+    },
+    "__id__btn-exit": {
+      "content": {
+        "backgroundColor": "#0c1428",
+        "color": "#46e0c0",
+        "borderColor": "#46e0c0"
+      }
+    }
+  },
+  "ranges": {
+    "title": {
+      "start": {
+        "line": 13,
+        "column": 2
+      },
+      "end": {
+        "line": 13,
+        "column": 8
+      }
+    },
+    "stats-row": {
+      "start": {
+        "line": 21,
+        "column": 2
+      },
+      "end": {
+        "line": 21,
+        "column": 12
+      }
+    },
+    "stat-block": {
+      "start": {
+        "line": 28,
+        "column": 2
+      },
+      "end": {
+        "line": 28,
+        "column": 13
+      }
+    },
+    "stat-label": {
+      "start": {
+        "line": 36,
+        "column": 2
+      },
+      "end": {
+        "line": 36,
+        "column": 13
+      }
+    },
+    "stat-value": {
+      "start": {
+        "line": 43,
+        "column": 2
+      },
+      "end": {
+        "line": 43,
+        "column": 13
+      }
+    },
+    "row": {
+      "start": {
+        "line": 69,
+        "column": 2
+      },
+      "end": {
+        "line": 69,
+        "column": 6
+      }
+    },
+    "btn": {
+      "start": {
+        "line": 75,
+        "column": 2
+      },
+      "end": {
+        "line": 75,
+        "column": 6
+      }
+    },
+    "__id__panel-container": {
+      "start": {
+        "line": 1,
+        "column": 2
+      },
+      "end": {
+        "line": 1,
+        "column": 18
+      }
+    },
+    "__id__score-value": {
+      "start": {
+        "line": 50,
+        "column": 2
+      },
+      "end": {
+        "line": 50,
+        "column": 14
+      }
+    },
+    "__id__length-value": {
+      "start": {
+        "line": 54,
+        "column": 2
+      },
+      "end": {
+        "line": 54,
+        "column": 15
+      }
+    },
+    "__id__speed-value": {
+      "start": {
+        "line": 58,
+        "column": 2
+      },
+      "end": {
+        "line": 58,
+        "column": 14
+      }
+    },
+    "__id__status-text": {
+      "start": {
+        "line": 62,
+        "column": 2
+      },
+      "end": {
+        "line": 62,
+        "column": 14
+      }
+    },
+    "__id__btn-action": {
+      "start": {
+        "line": 87,
+        "column": 2
+      },
+      "end": {
+        "line": 87,
+        "column": 13
+      }
+    },
+    "__id__btn-exit": {
+      "start": {
+        "line": 93,
+        "column": 2
+      },
+      "end": {
+        "line": 93,
+        "column": 11
+      }
+    },
+    "uid-1": {
+      "start": {
+        "line": 99,
+        "column": 0
+      },
+      "end": {
+        "line": 120,
+        "column": 6
+      }
+    },
+    "uid-2": {
+      "start": {
+        "line": 100,
+        "column": 2
+      },
+      "end": {
+        "line": 100,
+        "column": 44
+      }
+    },
+    "uid-3": {
+      "start": {
+        "line": 101,
+        "column": 2
+      },
+      "end": {
+        "line": 114,
+        "column": 8
+      }
+    },
+    "uid-4": {
+      "start": {
+        "line": 102,
+        "column": 4
+      },
+      "end": {
+        "line": 105,
+        "column": 10
+      }
+    },
+    "uid-5": {
+      "start": {
+        "line": 103,
+        "column": 6
+      },
+      "end": {
+        "line": 103,
+        "column": 43
+      }
+    },
+    "uid-6": {
+      "start": {
+        "line": 104,
+        "column": 6
+      },
+      "end": {
+        "line": 104,
+        "column": 58
+      }
+    },
+    "uid-7": {
+      "start": {
+        "line": 106,
+        "column": 4
+      },
+      "end": {
+        "line": 109,
+        "column": 10
+      }
+    },
+    "uid-8": {
+      "start": {
+        "line": 107,
+        "column": 6
+      },
+      "end": {
+        "line": 107,
+        "column": 44
+      }
+    },
+    "uid-9": {
+      "start": {
+        "line": 108,
+        "column": 6
+      },
+      "end": {
+        "line": 108,
+        "column": 57
+      }
+    },
+    "uid-10": {
+      "start": {
+        "line": 110,
+        "column": 4
+      },
+      "end": {
+        "line": 113,
+        "column": 10
+      }
+    },
+    "uid-11": {
+      "start": {
+        "line": 111,
+        "column": 6
+      },
+      "end": {
+        "line": 111,
+        "column": 43
+      }
+    },
+    "uid-12": {
+      "start": {
+        "line": 112,
+        "column": 6
+      },
+      "end": {
+        "line": 112,
+        "column": 57
+      }
+    },
+    "uid-13": {
+      "start": {
+        "line": 115,
+        "column": 2
+      },
+      "end": {
+        "line": 115,
+        "column": 45
+      }
+    },
+    "uid-14": {
+      "start": {
+        "line": 116,
+        "column": 2
+      },
+      "end": {
+        "line": 119,
+        "column": 8
+      }
+    },
+    "uid-15": {
+      "start": {
+        "line": 117,
+        "column": 4
+      },
+      "end": {
+        "line": 117,
+        "column": 57
+      }
+    },
+    "uid-16": {
+      "start": {
+        "line": 118,
+        "column": 4
+      },
+      "end": {
+        "line": 118,
+        "column": 59
+      }
+    }
+  }
+}
