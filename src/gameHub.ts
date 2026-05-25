@@ -1,14 +1,28 @@
-/**
- * Shared launcher state.
- *
- * `GameMenuSystem` is always registered and watches `gameHub.requested`;
- * when it changes it unregisters the running game's system and registers
- * the next one. A game asks to return to the launcher by setting
- * `gameHub.requested = "menu"`.
- *
- * A plain mutable object is enough — `GameMenuSystem` polls it once per frame.
- */
+import { signal, type Signal } from "@preact/signals-core";
+import type { Entity, World } from "@iwsdk/core";
 
 export type GameId = "menu" | "snake";
+export type Difficulty = "easy" | "normal" | "hard";
 
-export const gameHub: { requested: GameId } = { requested: "menu" };
+/** Reactive game selection — subscribe or set `.value` to switch games. */
+export const requestedGame = signal<GameId>("menu");
+
+export interface SnakeGlobals {
+  difficulty: Signal<Difficulty>;
+}
+
+export function installSnakeGlobals(world: World): SnakeGlobals {
+  const state: SnakeGlobals = { difficulty: signal<Difficulty>("normal") };
+  (world.globals as Record<string, unknown>).snake = state;
+  return state;
+}
+
+export function getSnakeGlobals(world: World): SnakeGlobals {
+  return (world.globals as Record<string, unknown>).snake as SnakeGlobals;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function safeRemove(entity: Entity, component: any): void {
+  if (!entity.active) return;
+  if (entity.hasComponent(component)) entity.removeComponent(component);
+}

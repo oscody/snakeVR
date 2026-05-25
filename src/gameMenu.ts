@@ -13,7 +13,14 @@ import {
   SRGBColorSpace,
 } from "@iwsdk/core";
 
-import { gameHub, type GameId } from "./gameHub.js";
+import { EatPulseSystem } from "./eatPulse.js";
+import {
+  getSnakeGlobals,
+  requestedGame,
+  safeRemove,
+  type Difficulty,
+  type GameId,
+} from "./gameHub.js";
 import {
   drawHoloPanel,
   drawHoloText,
@@ -31,7 +38,7 @@ import { SnakeGameSystem } from "./snakeGame.js";
  * neon-holographic menu (two game cards) plus a persistent corner MENU button,
  * and owns every transition between games:
  *
- *   - A card / key sets `gameHub.requested`.
+ *   - A card / key sets `requestedGame.value`.
  *   - `update()` notices the change and schedules `applyTransition()` as a
  *     microtask — so the actual `registerSystem` / `unregisterSystem` happens
  *     after the current frame's system loop finishes, never mid-update.
@@ -55,14 +62,20 @@ interface MenuCard {
   hovered: boolean;
 }
 
+const DIFF_KEYS: Difficulty[] = ["easy", "normal", "hard"];
+const DIFF_LABELS = ["EASY", "NORMAL", "HARD"];
+
 export class GameMenuSystem extends createSystem({}) {
   private menuRoot!: Group;
   private snakeBtn!: Entity;
   private menuBtnEntity!: Entity;
+  private diffBtns: Entity[] = [];
+  private diffCtxs: CanvasRenderingContext2D[] = [];
+  private diffTexes: CanvasTexture[] = [];
 
   private current: GameId = "menu";
   private transitioning = false;
-  private pressedPrev = { snake: false, menu: false };
+  private pressedPrev = { snake: false, menu: false, easy: false, normal: false, hard: false };
 
   // --- visuals ---
   private cards: MenuCard[] = [];
@@ -78,9 +91,23 @@ export class GameMenuSystem extends createSystem({}) {
     // Initial state: launcher visible, no game running.
     this.menuRoot.visible = true;
     this.setInteractable(this.snakeBtn, true);
+    for (const btn of this.diffBtns) this.setInteractable(btn, true);
     this.menuBtnEntity.object3D!.visible = false;
     this.setInteractable(this.menuBtnEntity, false);
     this.frameMenuCamera();
+
+    // Subscribe to game selection so transitions fire reactively, not via poll.
+    this.cleanupFuncs.push(
+      requestedGame.subscribe((next) => {
+        if (next !== this.current && !this.transitioning) {
+          this.transitioning = true;
+          Promise.resolve().then(() => {
+            this.applyTransition();
+            this.transitioning = false;
+          });
+        }
+      }),
+    );
 
     console.log(
       "[Snake VR] Launcher ready — click the card or press 1 to start. " +
@@ -92,15 +119,6 @@ export class GameMenuSystem extends createSystem({}) {
     this.elapsed += delta;
     this.pollButtons();
     this.pollKeyboard();
-
-    // Schedule game transitions outside the system loop (see class doc).
-    if (gameHub.requested !== this.current && !this.transitioning) {
-      this.transitioning = true;
-      Promise.resolve().then(() => {
-        this.applyTransition();
-        this.transitioning = false;
-      });
-    }
 
     // Breathing outer-glow halo + slow drifting scanlines.
     const breath = 0.8 + 0.2 * Math.sin(this.elapsed * 2.2);
@@ -122,6 +140,11 @@ export class GameMenuSystem extends createSystem({}) {
         base * (0.8 + 0.2 * Math.sin(this.elapsed * speed));
     }
 
+    // Difficulty buttons: hover scale.
+    for (const btn of this.diffBtns) {
+      btn.object3D?.scale.setScalar(btn.hasComponent(Hovered) ? 1.06 : 1);
+    }
+
     // Corner MENU button.
     const mbHover = this.menuBtnEntity.hasComponent(Hovered);
     this.menuBtnEntity.object3D?.scale.setScalar(mbHover ? 1.06 : 1);
@@ -132,21 +155,27 @@ export class GameMenuSystem extends createSystem({}) {
   // --- transitions --------------------------------------------------------
 
   private applyTransition() {
-    const next = gameHub.requested;
+    const next = requestedGame.peek();
     if (next === this.current) return;
 
-    if (this.current === "snake") this.world.unregisterSystem(SnakeGameSystem);
-
-    if (next === "snake") this.world.registerSystem(SnakeGameSystem);
+    if (this.current === "snake") {
+      this.world.unregisterSystem(SnakeGameSystem);
+      this.world.unregisterSystem(EatPulseSystem);
+    }
+    if (next === "snake") {
+      this.world.registerSystem(SnakeGameSystem, { priority: -5 });
+      this.world.registerSystem(EatPulseSystem, { priority: 0 });
+    }
 
     const inMenu = next === "menu";
     this.menuRoot.visible = inMenu;
     this.setInteractable(this.snakeBtn, inMenu);
+    for (const btn of this.diffBtns) this.setInteractable(btn, inMenu);
     this.menuBtnEntity.object3D!.visible = false;
     this.setInteractable(this.menuBtnEntity, false);
     if (inMenu) this.frameMenuCamera();
 
-    for (const e of [this.snakeBtn, this.menuBtnEntity]) {
+    for (const e of [this.snakeBtn, this.menuBtnEntity, ...this.diffBtns]) {
       e.object3D?.scale.setScalar(1);
     }
     this.current = next;
@@ -160,25 +189,31 @@ export class GameMenuSystem extends createSystem({}) {
   // --- input --------------------------------------------------------------
 
   private pollButtons() {
-    const fire = (
-      e: Entity,
-      key: "snake" | "menu",
-      requested: GameId,
-    ) => {
+    const fire = (e: Entity, key: "snake" | "menu", requested: GameId) => {
       const now = e.hasComponent(Pressed);
-      if (now && !this.pressedPrev[key]) gameHub.requested = requested;
+      if (now && !this.pressedPrev[key]) requestedGame.value = requested;
       this.pressedPrev[key] = now;
     };
     fire(this.snakeBtn, "snake", "snake");
     fire(this.menuBtnEntity, "menu", "menu");
+
+    for (let i = 0; i < DIFF_KEYS.length; i++) {
+      const key = DIFF_KEYS[i];
+      const now = this.diffBtns[i]?.hasComponent(Pressed) ?? false;
+      if (now && !this.pressedPrev[key]) {
+        getSnakeGlobals(this.world).difficulty.value = key;
+        this.drawDifficultyButtons();
+      }
+      this.pressedPrev[key] = now;
+    }
   }
 
   private pollKeyboard() {
     const kb = this.input.keyboard;
     if (this.current === "menu") {
-      if (kb.getKeyDown("Digit1")) gameHub.requested = "snake";
+      if (kb.getKeyDown("Digit1")) requestedGame.value = "snake";
     } else if (kb.getKeyDown("Escape")) {
-      gameHub.requested = "menu";
+      requestedGame.value = "menu";
     }
   }
 
@@ -187,8 +222,8 @@ export class GameMenuSystem extends createSystem({}) {
       if (!e.hasComponent(RayInteractable)) e.addComponent(RayInteractable);
       if (!e.hasComponent(PokeInteractable)) e.addComponent(PokeInteractable);
     } else {
-      if (e.hasComponent(RayInteractable)) e.removeComponent(RayInteractable);
-      if (e.hasComponent(PokeInteractable)) e.removeComponent(PokeInteractable);
+      safeRemove(e, RayInteractable);
+      safeRemove(e, PokeInteractable);
     }
   }
 
@@ -247,6 +282,47 @@ export class GameMenuSystem extends createSystem({}) {
       HOLO.green,
       menuEntity,
     );
+
+    this.buildDifficultyButtons(menuEntity);
+  }
+
+  private buildDifficultyButtons(menuEntity: Entity) {
+    const xs = [-0.26, 0, 0.26];
+    const y = -0.31;
+    for (let i = 0; i < DIFF_KEYS.length; i++) {
+      const panel = this.makePanel(0.22, 0.076, 280, 96);
+      panel.mesh.position.set(xs[i], y, 0.012);
+      const entity = this.world.createTransformEntity(panel.mesh, menuEntity);
+      entity.addComponent(RayInteractable);
+      entity.addComponent(PokeInteractable);
+      this.diffBtns.push(entity);
+      this.diffCtxs.push(panel.ctx);
+      this.diffTexes.push(panel.tex);
+    }
+    this.drawDifficultyButtons();
+  }
+
+  private drawDifficultyButtons() {
+    const current = getSnakeGlobals(this.world).difficulty.peek();
+    for (let i = 0; i < DIFF_KEYS.length; i++) {
+      const active = DIFF_KEYS[i] === current;
+      const c = this.diffCtxs[i];
+      c.clearRect(0, 0, 280, 96);
+      drawHoloPanel(c, 6, 6, 268, 84, {
+        accent: active ? HOLO.cyan : rgba(HOLO.lavender, 0.35),
+        radius: 14,
+        glow: active ? 1.0 : 0.2,
+        brackets: false,
+      });
+      drawHoloText(c, DIFF_LABELS[i], 140, 58, {
+        font: "bold 26px sans-serif",
+        color: active ? HOLO.text : rgba(HOLO.lavender, 0.55),
+        glow: active ? 0.45 : 0,
+        align: "center",
+        letterSpacing: 2,
+      });
+      this.diffTexes[i].needsUpdate = true;
+    }
   }
 
   private drawTitle(c: CanvasRenderingContext2D) {

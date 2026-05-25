@@ -11,7 +11,9 @@ export default defineConfig({
       emulator: {
         device: "metaQuest3",
       },
-      ai: { mode: "agent" },
+      ai: {         
+        mode: "oversight",
+        tools: ["claude", "codex"], },
       verbose: true,
     }),
 

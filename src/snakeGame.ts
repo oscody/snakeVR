@@ -29,6 +29,8 @@ import {
   VisibilityState,
 } from "@iwsdk/core";
 
+import { spawnEatPulse } from "./eatPulse.js";
+import { getSnakeGlobals } from "./gameHub.js";
 import { drawHoloPanel, HOLO } from "./holoUi.js";
 import { setSnakeLayoutCoords } from "./layoutState.js";
 import { SnakeHud } from "./snakeHud.js";
@@ -42,11 +44,10 @@ import { SnakeHud } from "./snakeHud.js";
  * controller thumbstick, the floating arrow buttons (controller ray / finger
  * poke), or — with hand tracking — by pointing and pinching.
  *
- * Like Strata, the whole game is self-contained: one system owning a single
- * `gameRoot` transform entity. Visual pieces are plain meshes parented under
- * it; only the orb, the buttons, and the audio sources need to be entities.
- * `cleanupFuncs` tears everything down when the launcher unregisters this
- * system, so it never touches Strata or the menu.
+ * Self-contained: one system owning a single `gameRoot` transform entity.
+ * Visual pieces are plain meshes parented under it; only the orb, the buttons,
+ * and audio sources need to be entities. `cleanupFuncs` tears everything down
+ * when the launcher unregisters this system.
  */
 
 const GRID = 30; // tiles per side
@@ -57,9 +58,12 @@ const SEG_Y = TILE * 0.5; // height of segment/orb centres above the board
 
 const BOARD = { x: 0, y: 1.0, z: -2.05 }; // board centre, world space
 
-const START_TICK = 0.34; // seconds per move at the start
-const MIN_TICK = 0.12; // fastest tick
-const TICK_STEP = 0.025; // tick shortened per orb eaten
+const DIFFICULTY = {
+  easy:   { tickBase: 0.60, minTick: 0.18, tickStep: 0.015 },
+  normal: { tickBase: 0.34, minTick: 0.12, tickStep: 0.025 },
+  hard:   { tickBase: 0.20, minTick: 0.08, tickStep: 0.036 },
+} as const;
+
 const START_LEN = 1; // initial serpent length in segments (head counts as 1)
 const BOARD_MOVE_STEP = TILE; // metres moved by the board per button press
 
@@ -115,7 +119,10 @@ export class SnakeGameSystem extends createSystem({}) {
   private orb: Cell = { x: 0, z: 0 };
 
   private tickTimer = 0;
-  private tickInterval = START_TICK;
+  private tickInterval: number = DIFFICULTY.normal.tickBase;
+  private tickBase: number = DIFFICULTY.normal.tickBase;
+  private minTick: number = DIFFICULTY.normal.minTick;
+  private tickStepSize: number = DIFFICULTY.normal.tickStep;
   private score = 0;
   private gameOver = false;
   private started = false; // false = idle "ready" state; true once the round began
@@ -188,6 +195,11 @@ export class SnakeGameSystem extends createSystem({}) {
   // --- game loop ----------------------------------------------------------
 
   private startGame() {
+    const diff = DIFFICULTY[getSnakeGlobals(this.world).difficulty.peek()];
+    this.tickBase = diff.tickBase;
+    this.minTick = diff.minTick;
+    this.tickStepSize = diff.tickStep;
+
     const c = Math.floor(GRID / 2);
     this.body = [];
     for (let i = 0; i < START_LEN; i++) this.body.push({ x: c, z: c + i });
@@ -195,7 +207,7 @@ export class SnakeGameSystem extends createSystem({}) {
     this.dir = { x: 0, z: -1 };
     this.nextDir = { x: 0, z: -1 };
     this.score = 0;
-    this.tickInterval = START_TICK;
+    this.tickInterval = this.tickBase;
     this.tickTimer = 0;
     this.gameOver = false;
     this.started = false; // wait for the player to begin — snake stays idle
@@ -230,8 +242,13 @@ export class SnakeGameSystem extends createSystem({}) {
     this.prevBody = this.body.map((cell) => ({ ...cell }));
     this.body.unshift({ x: nx, z: nz });
     if (willEat) {
+      spawnEatPulse(
+        this.world,
+        this.boardEntity,
+        new Vector3(this.lx(this.orb.x), SEG_Y, this.lz(this.orb.z)),
+      );
       this.score += 1;
-      this.tickInterval = Math.max(MIN_TICK, this.tickInterval - TICK_STEP);
+      this.tickInterval = Math.max(this.minTick, this.tickInterval - this.tickStepSize);
       this.spawnOrb();
       AudioUtils.play(this.orbEntity);
       this.ensureSegmentMeshes();
@@ -589,8 +606,8 @@ export class SnakeGameSystem extends createSystem({}) {
       length: this.body.length,
       gameOver: this.gameOver,
       tickInterval: this.tickInterval,
-      startTick: START_TICK,
-      minTick: MIN_TICK,
+      startTick: this.tickBase,
+      minTick: this.minTick,
     });
   }
 
