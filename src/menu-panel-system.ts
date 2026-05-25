@@ -67,8 +67,8 @@ export class MenuPanelSystem extends createSystem({
       .addComponent(RayInteractable)
       .addComponent(PokeInteractable)
       .addComponent(ScreenSpace, {
-        top: "20px",
-        left: "20px",
+        top: "200px",
+        left: "80px",
         width: "320px",
       });
 
@@ -139,7 +139,7 @@ export class MenuPanelSystem extends createSystem({
   }
 
   private frameMenuCamera() {
-    this.world.camera.position.set(0, 1.5, 0.3);
+    this.world.camera.position.set(0, 0, 0);
     this.world.camera.lookAt(MENU_POS.x, MENU_POS.y, MENU_POS.z);
   }
 }
