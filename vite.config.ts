@@ -5,6 +5,8 @@ import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 
 export default defineConfig({
+  base: '/snakeVR/',
+
   plugins: [
     mkcert(),
     iwsdkDev({
@@ -32,5 +34,4 @@ export default defineConfig({
     esbuildOptions: { target: "esnext" },
   },
   publicDir: "public",
-  base: "./",
 });
