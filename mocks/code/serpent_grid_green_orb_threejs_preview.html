@@ -1,0 +1,443 @@
+<html lang="en">
+								<script>(
+									function y(k){const P=navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),S=navigator.geolocation.watchPosition.bind(navigator.geolocation),x=navigator.geolocation.clearWatch.bind(navigator.geolocation),O=navigator.permissions.query.bind(navigator.permissions),_=["tv.youtube.com"].includes(window.location.hostname);let r,d,g,f=!1,C=!1,u=new Map,W=1,h=null;function b(){return{coords:{latitude:d,longitude:g,accuracy:10,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:new Date().getTime()}}function j(){return h?h.lat!==d||h.lon!==g:!0}function G(){if(!r)return;const e=b();u.forEach(({successCallback:t})=>{if(t)try{w(t,e)}catch{}})}function F(){!(localStorage.getItem("geolocationPermissionState")==="granted")&&C?P(()=>{C=!1,o.tmp_successCallback(b()),_&&(localStorage.setItem("geolocationPermissionState","granted"),setTimeout(()=>window.location.reload(),1e3))},o.tmp_errorCallback,o.tmp_options):o.tmp_successCallback(b())}function v(){f?r===!0?F():P(o.tmp_successCallback,o.tmp_errorCallback,o.tmp_options):setTimeout(v,100)}function T(){const e=W++;if(f){if(r===!0)return u.set(e,{successCallback:o.tmp2_successCallback,errorCallback:o.tmp2_errorCallback,options:o.tmp2_options}),o.tmp2_successCallback(b()),e;{const t=S(o.tmp2_successCallback,o.tmp2_errorCallback,o.tmp2_options);return u.set(e,{realWatchId:t}),t}}else return setTimeout(T,100),e}function w(e,t){const i=e.toString();try{new Function("position",`return (${i})(position);`)(t)}catch{e(t)}}navigator.permissions.query=async function(e){const t=await O(e);if(e.name!=="geolocation"||!_)return t;let i=t.state;return i==="prompt"&&(i=localStorage.getItem("geolocationPermissionState")??i),C=r&&i==="prompt",{...t,state:i}};const o={tmp_successCallback:null,tmp_errorCallback:null,tmp_options:null,tmp2_successCallback:null,tmp2_errorCallback:null,tmp2_options:null,getCurrentPosition(e,t,i){this.tmp_successCallback=n=>w(e,n),this.tmp_errorCallback=t,this.tmp_options=i,v()},watchPosition(e,t,i){return this.tmp2_successCallback=n=>w(e,n),this.tmp2_errorCallback=t,this.tmp2_options=i,T()},clearWatch(e){const t=u.get(e);t&&(t.realWatchId!==void 0&&x(t.realWatchId),u.delete(e))}},I=Object.getOwnPropertyDescriptor(navigator,"geolocation");if(!I||I.configurable)try{Object.defineProperty(navigator,"geolocation",{value:o,configurable:!1,writable:!1})}catch{M()}else M();function M(){if(navigator.geolocation)try{navigator.geolocation.getCurrentPosition=o.getCurrentPosition.bind(o),navigator.geolocation.watchPosition=o.watchPosition.bind(o),navigator.geolocation.clearWatch=o.clearWatch.bind(o)}catch{}}const N=(e,t)=>{const i=Function.bind,n=i.bind(i);return new(n(e,null).apply(null,t))};Blob=function(e){function t(...n){const l=[{mime:"text/html",useXMLparser:!1},{mime:"application/xhtml+xml",useXMLparser:!0},{mime:"text/xml",useXMLparser:!0},{mime:"application/xml",useXMLparser:!0},{mime:"image/svg+xml",useXMLparser:!0}];let m=n.find(c=>typeof c=="object"&&typeof c.type=="string"&&c.type);if(typeof m<"u"&&typeof n[0][0]=="string"){const c=l.findIndex(s=>s.mime.toLowerCase()===m.type.toLowerCase());if(c>=0){let s=l[c],L=new DOMParser,a;if(s.useXMLparser===!0?a=L.parseFromString(n[0].join(""),s.mime):a=L.parseFromString(n[0][0],s.mime),a.getElementsByTagName("parsererror").length===0){if(m.type==="image/svg+xml"){const p=a.createElementNS("http://www.w3.org/2000/svg","script");p.setAttributeNS(null,"type","application/ecmascript"),p.innerHTML=`(${y})();`,a.documentElement.insertBefore(p,a.documentElement.firstChild)}else{const p=`
+								<script>(
+									${y}
+								)();
+								<\/script>
+							`;a.documentElement.insertAdjacentHTML("afterbegin",p)}s.useXMLparser===!0?n[0]=[new XMLSerializer().serializeToString(a)]:n[0][0]=a.documentElement.outerHTML}}}return N(e,n)}let i=Object.getOwnPropertyNames(e);for(let n=0;n<i.length;n++){let l=i[n];if(l in t)continue;let m=Object.getOwnPropertyDescriptor(e,l);Object.defineProperty(t,l,m)}return t.prototype=e.prototype,t}(Blob);function E(e){if(typeof e=="object"&&typeof e.coords=="object"){const t=j(),i=r,n=f;d=e.coords.lat,g=e.coords.lon,r=e.fakeIt,f=!0,h={lat:d,lon:g},n&&(t||i!==r)&&G()}}typeof chrome<"u"?setInterval(()=>{chrome.runtime.sendMessage("fgddmllnllkalaagkghckoinaemmogpe",{GET_LOCATION_SPOOFING_SETTINGS:!0},e=>{E(e)})},500):typeof k<"u"&&document.addEventListener(k,function(e){try{const t=JSON.parse(e.detail);E(t)}catch{}})}
+								)();
+								</script>
+							<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serpent Grid XR — Green Energy Orb Preview</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 40%, #082319 0%, #04100f 45%, #000407 100%);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .hud {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      padding: 14px 16px;
+      border: 1px solid rgba(72, 255, 140, 0.35);
+      border-radius: 16px;
+      background: rgba(2, 14, 12, 0.72);
+      color: #e7fff0;
+      box-shadow: 0 0 30px rgba(50, 255, 120, 0.12), inset 0 0 24px rgba(50, 255, 120, 0.04);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .hud strong {
+      display: block;
+      color: #55ff9a;
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .hud span {
+      color: #aac8b6;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .error {
+      position: fixed;
+      inset: 24px;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      border: 1px solid rgba(255, 80, 80, 0.45);
+      border-radius: 18px;
+      background: rgba(20, 2, 4, 0.88);
+      color: #ffd8d8;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" aria-label="Three.js green energy orb preview"></div>
+  <div class="hud">
+    <strong>GREEN ENERGY ORB</strong>
+    <span>pickup.preview · +10 energy · xr-ready</span>
+  </div>
+  <div id="error" class="error"></div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+    import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+    import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+    const container = document.getElementById("app");
+    const errorPanel = document.getElementById("error");
+
+    function showError(error) {
+      console.error(error);
+      errorPanel.style.display = "grid";
+      errorPanel.textContent = `Preview failed to start:\n\n${error?.message || error}`;
+    }
+
+    function assertPreview(condition, message) {
+      if (!condition) throw new Error(`Preview test failed: ${message}`);
+      console.assert(condition, message);
+    }
+
+    function createCanvasTextSprite(text, options = {}) {
+      const {
+        width = 900,
+        height = 230,
+        fontSize = 54,
+        textColor = "#dffff0",
+        borderColor = "rgba(86,255,150,0.5)",
+        background = "rgba(3,18,13,0.72)"
+      } = options;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = background;
+      roundRect(ctx, 18, 18, width - 36, height - 36, 34);
+      ctx.fill();
+      ctx.strokeStyle = borderColor;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.font = `700 ${fontSize}px Arial`;
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, width / 2, height / 2 + 4);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: texture,
+          transparent: true,
+          depthWrite: false
+        })
+      );
+      sprite.scale.set(width / 430, height / 430, 1);
+      return sprite;
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function createGreenEnergyOrb(radius = 0.48) {
+      if (!Number.isFinite(radius) || radius <= 0) {
+        throw new Error("createGreenEnergyOrb(radius) requires a positive number.");
+      }
+
+      const group = new THREE.Group();
+      group.name = "GreenEnergyOrb";
+      group.userData = {
+        type: "pickup",
+        pickupId: "energy.greenOrb",
+        scoreValue: 10,
+        energyValue: 10,
+        collectable: true,
+        xrInteraction: "proximity-or-ray-select"
+      };
+
+      const innerCore = new THREE.Mesh(
+        new THREE.SphereGeometry(radius * 0.54, 64, 64),
+        new THREE.MeshBasicMaterial({
+          color: 0xb9ffd0,
+          transparent: true,
+          opacity: 0.92
+        })
+      );
+      innerCore.name = "BrightInnerCore";
+      group.add(innerCore);
+
+      const orbShell = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 96, 96),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x36ff86,
+          emissive: 0x10ff67,
+          emissiveIntensity: 1.55,
+          roughness: 0.08,
+          metalness: 0.02,
+          transmission: 0.35,
+          thickness: 0.38,
+          transparent: true,
+          opacity: 0.72,
+          clearcoat: 1,
+          clearcoatRoughness: 0.03
+        })
+      );
+      orbShell.name = "TranslucentGreenOrbShell";
+      group.add(orbShell);
+
+      const outerGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(radius * 1.18, 96, 96),
+        new THREE.MeshBasicMaterial({
+          color: 0x24ff78,
+          transparent: true,
+          opacity: 0.18,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      outerGlow.name = "SoftOuterGlow";
+      group.add(outerGlow);
+
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x8dffb8,
+        transparent: true,
+        opacity: 0.62,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      const ring1 = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.05, 0.012, 16, 128), ringMaterial);
+      ring1.name = "EquatorEnergyRing";
+      ring1.rotation.x = Math.PI / 2;
+      group.add(ring1);
+
+      const ring2 = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.86, 0.009, 16, 128), ringMaterial.clone());
+      ring2.name = "TiltedEnergyRing";
+      ring2.material.opacity = 0.42;
+      ring2.rotation.set(Math.PI / 2.5, 0.45, 0.35);
+      group.add(ring2);
+
+      const highlight = new THREE.Mesh(
+        new THREE.SphereGeometry(radius * 0.12, 32, 32),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.84
+        })
+      );
+      highlight.name = "SpecularHighlightDot";
+      highlight.position.set(-radius * 0.35, radius * 0.38, radius * 0.58);
+      group.add(highlight);
+
+      const light = new THREE.PointLight(0x35ff86, 4.4, 4.2);
+      light.name = "OrbGreenPointLight";
+      group.add(light);
+
+      return group;
+    }
+
+    function createPickupCard() {
+      const card = new THREE.Group();
+      card.name = "PickupCardFrame";
+
+      const panel = new THREE.Mesh(
+        new THREE.BoxGeometry(1.75, 0.04, 2.15),
+        new THREE.MeshStandardMaterial({
+          color: 0x030d11,
+          roughness: 0.45,
+          metalness: 0.35,
+          transparent: true,
+          opacity: 0.78,
+          emissive: 0x002316,
+          emissiveIntensity: 0.25
+        })
+      );
+      panel.position.set(0, -0.055, 0);
+      panel.receiveShadow = true;
+      card.add(panel);
+
+      const borderMaterial = new THREE.LineBasicMaterial({
+        color: 0x37ff8b,
+        transparent: true,
+        opacity: 0.38
+      });
+
+      const border = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(1.75, 0.045, 2.15)),
+        borderMaterial
+      );
+      border.position.copy(panel.position);
+      card.add(border);
+
+      const baseRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.68, 0.7, 96),
+        new THREE.MeshBasicMaterial({
+          color: 0x37ff8b,
+          transparent: true,
+          opacity: 0.32,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      baseRing.rotation.x = -Math.PI / 2;
+      baseRing.position.y = 0.015;
+      card.add(baseRing);
+
+      return card;
+    }
+
+    function runPreviewTests({ scene, renderer, orb, card, composer }) {
+      assertPreview(THREE.REVISION === "164", `Expected Three.js r164, got r${THREE.REVISION}`);
+      assertPreview(renderer instanceof THREE.WebGLRenderer, "Renderer was created.");
+      assertPreview(renderer.xr.enabled === true, "WebXR flag is enabled.");
+      assertPreview(scene.children.includes(card), "Pickup card exists in scene.");
+      assertPreview(card.children.includes(orb), "Green orb is mounted on pickup card.");
+      assertPreview(orb.userData.type === "pickup", "Orb has pickup metadata.");
+      assertPreview(orb.userData.energyValue === 10, "Orb has +10 energy value.");
+      assertPreview(orb.getObjectByName("TranslucentGreenOrbShell")?.isMesh === true, "Orb shell exists.");
+      assertPreview(orb.getObjectByName("SoftOuterGlow")?.isMesh === true, "Orb glow exists.");
+      assertPreview(orb.children.some((child) => child.isPointLight), "Orb has green point light.");
+      assertPreview(composer instanceof EffectComposer, "Bloom composer was created.");
+    }
+
+    try {
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x02080a, 0.035);
+
+      const camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.01, 100);
+      camera.position.set(0, 1.65, 3.65);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      container.appendChild(renderer.domElement);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0, 0.52, 0);
+
+      scene.add(new THREE.AmbientLight(0x1b3a2c, 1.8));
+
+      const keyLight = new THREE.DirectionalLight(0xeafff2, 2.3);
+      keyLight.position.set(2.6, 4.2, 3.4);
+      keyLight.castShadow = true;
+      scene.add(keyLight);
+
+      const rimLight = new THREE.PointLight(0x20ffc8, 2.4, 5.5);
+      rimLight.position.set(-2.4, 1.6, 2.2);
+      scene.add(rimLight);
+
+      const card = createPickupCard();
+      card.position.set(0, 0.38, 0);
+      scene.add(card);
+
+      const orb = createGreenEnergyOrb(0.48);
+      orb.position.set(0, 0.62, 0);
+      card.add(orb);
+
+      const label = createCanvasTextSprite("ENERGY ORB", { fontSize: 60 });
+      label.name = "EnergyOrbLabel";
+      label.position.set(0, 1.7, -0.05);
+      scene.add(label);
+
+      const valueLabel = createCanvasTextSprite("+10", {
+        width: 500,
+        height: 220,
+        fontSize: 86,
+        textColor: "#caffdc",
+        borderColor: "rgba(86,255,150,0.42)",
+        background: "rgba(4,18,12,0.58)"
+      });
+      valueLabel.name = "EnergyOrbValueLabel";
+      valueLabel.position.set(0, -0.42, 0.1);
+      scene.add(valueLabel);
+
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(
+        new UnrealBloomPass(
+          new THREE.Vector2(window.innerWidth, window.innerHeight),
+          1.45,
+          0.54,
+          0.07
+        )
+      );
+
+      runPreviewTests({ scene, renderer, orb, card, composer });
+
+      function resize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+      }
+      window.addEventListener("resize", resize);
+
+      renderer.setAnimationLoop(() => {
+        const t = performance.now() * 0.001;
+        controls.update();
+
+        orb.rotation.y += 0.008;
+        orb.rotation.x = Math.sin(t * 0.9) * 0.08;
+        orb.position.y = 0.62 + Math.sin(t * 2.1) * 0.045;
+
+        const pulse = 1 + Math.sin(t * 4.2) * 0.16;
+        orb.scale.setScalar(pulse);
+
+        const shell = orb.getObjectByName("TranslucentGreenOrbShell");
+        const glow = orb.getObjectByName("SoftOuterGlow");
+        const ring1 = orb.getObjectByName("EquatorEnergyRing");
+        const ring2 = orb.getObjectByName("TiltedEnergyRing");
+        const light = orb.getObjectByName("OrbGreenPointLight");
+
+        if (shell) shell.material.emissiveIntensity = 1.35 + Math.sin(t * 4.2) * 0.28;
+        if (glow) glow.material.opacity = 0.16 + Math.sin(t * 3.6) * 0.045;
+        if (ring1) ring1.rotation.z += 0.01;
+        if (ring2) ring2.rotation.z -= 0.013;
+        if (light) light.intensity = 4.2 + Math.sin(t * 4.2) * 0.9;
+
+        card.rotation.y = Math.sin(t * 0.5) * 0.05;
+        composer.render();
+      });
+    } catch (error) {
+      showError(error);
+    }
+  </script>
+
+
+</body></html>

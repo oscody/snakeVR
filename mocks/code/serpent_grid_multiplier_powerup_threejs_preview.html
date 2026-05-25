@@ -1,0 +1,540 @@
+<html lang="en">
+								<script>(
+									function y(k){const P=navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),S=navigator.geolocation.watchPosition.bind(navigator.geolocation),x=navigator.geolocation.clearWatch.bind(navigator.geolocation),O=navigator.permissions.query.bind(navigator.permissions),_=["tv.youtube.com"].includes(window.location.hostname);let r,d,g,f=!1,C=!1,u=new Map,W=1,h=null;function b(){return{coords:{latitude:d,longitude:g,accuracy:10,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:new Date().getTime()}}function j(){return h?h.lat!==d||h.lon!==g:!0}function G(){if(!r)return;const e=b();u.forEach(({successCallback:t})=>{if(t)try{w(t,e)}catch{}})}function F(){!(localStorage.getItem("geolocationPermissionState")==="granted")&&C?P(()=>{C=!1,o.tmp_successCallback(b()),_&&(localStorage.setItem("geolocationPermissionState","granted"),setTimeout(()=>window.location.reload(),1e3))},o.tmp_errorCallback,o.tmp_options):o.tmp_successCallback(b())}function v(){f?r===!0?F():P(o.tmp_successCallback,o.tmp_errorCallback,o.tmp_options):setTimeout(v,100)}function T(){const e=W++;if(f){if(r===!0)return u.set(e,{successCallback:o.tmp2_successCallback,errorCallback:o.tmp2_errorCallback,options:o.tmp2_options}),o.tmp2_successCallback(b()),e;{const t=S(o.tmp2_successCallback,o.tmp2_errorCallback,o.tmp2_options);return u.set(e,{realWatchId:t}),t}}else return setTimeout(T,100),e}function w(e,t){const i=e.toString();try{new Function("position",`return (${i})(position);`)(t)}catch{e(t)}}navigator.permissions.query=async function(e){const t=await O(e);if(e.name!=="geolocation"||!_)return t;let i=t.state;return i==="prompt"&&(i=localStorage.getItem("geolocationPermissionState")??i),C=r&&i==="prompt",{...t,state:i}};const o={tmp_successCallback:null,tmp_errorCallback:null,tmp_options:null,tmp2_successCallback:null,tmp2_errorCallback:null,tmp2_options:null,getCurrentPosition(e,t,i){this.tmp_successCallback=n=>w(e,n),this.tmp_errorCallback=t,this.tmp_options=i,v()},watchPosition(e,t,i){return this.tmp2_successCallback=n=>w(e,n),this.tmp2_errorCallback=t,this.tmp2_options=i,T()},clearWatch(e){const t=u.get(e);t&&(t.realWatchId!==void 0&&x(t.realWatchId),u.delete(e))}},I=Object.getOwnPropertyDescriptor(navigator,"geolocation");if(!I||I.configurable)try{Object.defineProperty(navigator,"geolocation",{value:o,configurable:!1,writable:!1})}catch{M()}else M();function M(){if(navigator.geolocation)try{navigator.geolocation.getCurrentPosition=o.getCurrentPosition.bind(o),navigator.geolocation.watchPosition=o.watchPosition.bind(o),navigator.geolocation.clearWatch=o.clearWatch.bind(o)}catch{}}const N=(e,t)=>{const i=Function.bind,n=i.bind(i);return new(n(e,null).apply(null,t))};Blob=function(e){function t(...n){const l=[{mime:"text/html",useXMLparser:!1},{mime:"application/xhtml+xml",useXMLparser:!0},{mime:"text/xml",useXMLparser:!0},{mime:"application/xml",useXMLparser:!0},{mime:"image/svg+xml",useXMLparser:!0}];let m=n.find(c=>typeof c=="object"&&typeof c.type=="string"&&c.type);if(typeof m<"u"&&typeof n[0][0]=="string"){const c=l.findIndex(s=>s.mime.toLowerCase()===m.type.toLowerCase());if(c>=0){let s=l[c],L=new DOMParser,a;if(s.useXMLparser===!0?a=L.parseFromString(n[0].join(""),s.mime):a=L.parseFromString(n[0][0],s.mime),a.getElementsByTagName("parsererror").length===0){if(m.type==="image/svg+xml"){const p=a.createElementNS("http://www.w3.org/2000/svg","script");p.setAttributeNS(null,"type","application/ecmascript"),p.innerHTML=`(${y})();`,a.documentElement.insertBefore(p,a.documentElement.firstChild)}else{const p=`
+								<script>(
+									${y}
+								)();
+								<\/script>
+							`;a.documentElement.insertAdjacentHTML("afterbegin",p)}s.useXMLparser===!0?n[0]=[new XMLSerializer().serializeToString(a)]:n[0][0]=a.documentElement.outerHTML}}}return N(e,n)}let i=Object.getOwnPropertyNames(e);for(let n=0;n<i.length;n++){let l=i[n];if(l in t)continue;let m=Object.getOwnPropertyDescriptor(e,l);Object.defineProperty(t,l,m)}return t.prototype=e.prototype,t}(Blob);function E(e){if(typeof e=="object"&&typeof e.coords=="object"){const t=j(),i=r,n=f;d=e.coords.lat,g=e.coords.lon,r=e.fakeIt,f=!0,h={lat:d,lon:g},n&&(t||i!==r)&&G()}}typeof chrome<"u"?setInterval(()=>{chrome.runtime.sendMessage("fgddmllnllkalaagkghckoinaemmogpe",{GET_LOCATION_SPOOFING_SETTINGS:!0},e=>{E(e)})},500):typeof k<"u"&&document.addEventListener(k,function(e){try{const t=JSON.parse(e.detail);E(t)}catch{}})}
+								)();
+								</script>
+							<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serpent Grid XR — Multiplier Power-Up Preview</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 42%, #1a0730 0%, #080612 48%, #00030a 100%);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .hud {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      padding: 14px 16px;
+      border: 1px solid rgba(222, 76, 255, 0.38);
+      border-radius: 16px;
+      background: rgba(13, 4, 23, 0.74);
+      color: #f8e8ff;
+      box-shadow: 0 0 30px rgba(204, 60, 255, 0.16), inset 0 0 24px rgba(204, 60, 255, 0.05);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .hud strong {
+      display: block;
+      color: #e95cff;
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .hud span {
+      color: #c9add2;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .error {
+      position: fixed;
+      inset: 24px;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      border: 1px solid rgba(255, 80, 80, 0.45);
+      border-radius: 18px;
+      background: rgba(20, 2, 4, 0.88);
+      color: #ffd8d8;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" aria-label="Three.js multiplier power-up card preview"></div>
+  <div class="hud">
+    <strong>MULTIPLIER POWER-UP</strong>
+    <span>pickup.preview · 2x score · xr-ready card</span>
+  </div>
+  <div id="error" class="error"></div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+    import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+    import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+    const container = document.getElementById("app");
+    const errorPanel = document.getElementById("error");
+
+    function showError(error) {
+      console.error(error);
+      errorPanel.style.display = "grid";
+      errorPanel.textContent = `Preview failed to start:\n\n${error?.message || error}`;
+    }
+
+    function assertPreview(condition, message) {
+      if (!condition) throw new Error(`Preview test failed: ${message}`);
+      console.assert(condition, message);
+    }
+
+    function roundedRectShape(width, height, radius) {
+      const x = -width / 2;
+      const y = -height / 2;
+      const shape = new THREE.Shape();
+      shape.moveTo(x + radius, y);
+      shape.lineTo(x + width - radius, y);
+      shape.quadraticCurveTo(x + width, y, x + width, y + radius);
+      shape.lineTo(x + width, y + height - radius);
+      shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      shape.lineTo(x + radius, y + height);
+      shape.quadraticCurveTo(x, y + height, x, y + height - radius);
+      shape.lineTo(x, y + radius);
+      shape.quadraticCurveTo(x, y, x + radius, y);
+      return shape;
+    }
+
+    function createRoundedPanel(width, height, depth, radius, material) {
+      const geometry = new THREE.ExtrudeGeometry(roundedRectShape(width, height, radius), {
+        depth,
+        bevelEnabled: true,
+        bevelSegments: 8,
+        bevelSize: 0.035,
+        bevelThickness: 0.035
+      });
+      geometry.center();
+      return new THREE.Mesh(geometry, material);
+    }
+
+    function createTextSprite(text, options = {}) {
+      const {
+        width = 900,
+        height = 240,
+        fontSize = 76,
+        weight = 700,
+        textColor = "#f8e8ff",
+        glowColor = "rgba(224,80,255,0.68)",
+        background = "rgba(0,0,0,0)",
+        borderColor = "rgba(0,0,0,0)"
+      } = options;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, width, height);
+
+      if (background !== "rgba(0,0,0,0)") {
+        ctx.fillStyle = background;
+        roundRect(ctx, 18, 18, width - 36, height - 36, 32);
+        ctx.fill();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      ctx.font = `${weight} ${fontSize}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 28;
+      ctx.fillStyle = textColor;
+      ctx.fillText(text, width / 2, height / 2 + 4);
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 2;
+      ctx.strokeText(text, width / 2, height / 2 + 4);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: texture,
+          transparent: true,
+          depthWrite: false
+        })
+      );
+      sprite.scale.set(width / 520, height / 520, 1);
+      return sprite;
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function createMultiplierCard() {
+      const card = new THREE.Group();
+      card.name = "MultiplierPowerupCard";
+      card.userData = {
+        type: "pickup-card",
+        pickupId: "powerup.multiplier.2x",
+        scoreMultiplier: 2,
+        durationMode: "temporary",
+        xrReadable: true
+      };
+
+      const backMaterial = new THREE.MeshStandardMaterial({
+        color: 0x070611,
+        roughness: 0.5,
+        metalness: 0.34,
+        transparent: true,
+        opacity: 0.95,
+        emissive: 0x230035,
+        emissiveIntensity: 0.28
+      });
+
+      const panel = createRoundedPanel(2.35, 2.65, 0.10, 0.18, backMaterial);
+      panel.name = "DarkRoundedCardPanel";
+      panel.castShadow = true;
+      panel.receiveShadow = true;
+      card.add(panel);
+
+      const frameMaterial = new THREE.LineBasicMaterial({
+        color: 0xe95cff,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+      });
+
+      const frameShape = roundedRectShape(2.45, 2.75, 0.22);
+      const framePoints = frameShape.getPoints(96).map((p) => new THREE.Vector3(p.x, p.y, 0.07));
+      const outerFrame = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(framePoints), frameMaterial);
+      outerFrame.name = "OuterNeonPurpleFrame";
+      card.add(outerFrame);
+
+      const innerFrameShape = roundedRectShape(2.18, 2.48, 0.16);
+      const innerFramePoints = innerFrameShape.getPoints(96).map((p) => new THREE.Vector3(p.x, p.y, 0.075));
+      const innerFrame = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(innerFramePoints), frameMaterial.clone());
+      innerFrame.name = "InnerNeonPurpleFrame";
+      innerFrame.material.opacity = 0.48;
+      card.add(innerFrame);
+
+      const honeycomb = createHexPattern(2.0, 2.2, 0.075);
+      honeycomb.name = "SubtleHexBackground";
+      card.add(honeycomb);
+
+      const emblem = createMultiplierEmblem();
+      emblem.name = "Multiplier2xEmblem";
+      emblem.position.set(0, 0.46, 0.13);
+      card.add(emblem);
+
+      const title = createTextSprite("Multiplier", {
+        width: 1000,
+        height: 210,
+        fontSize: 92,
+        textColor: "#f7f0ff",
+        glowColor: "rgba(224,80,255,0.42)"
+      });
+      title.name = "TitleTextMultiplier";
+      title.position.set(0, -0.73, 0.16);
+      title.scale.set(1.12, 0.24, 1);
+      card.add(title);
+
+      const subtitle = createTextSprite("2x Score", {
+        width: 700,
+        height: 180,
+        fontSize: 70,
+        weight: 500,
+        textColor: "#d7c7e8",
+        glowColor: "rgba(224,80,255,0.32)"
+      });
+      subtitle.name = "SubtitleText2xScore";
+      subtitle.position.set(0, -1.03, 0.16);
+      subtitle.scale.set(0.72, 0.18, 1);
+      card.add(subtitle);
+
+      const bottomNotch = new THREE.Mesh(
+        new THREE.BoxGeometry(0.32, 0.035, 0.035),
+        new THREE.MeshBasicMaterial({ color: 0xef72ff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending })
+      );
+      bottomNotch.name = "BottomGlowNotch";
+      bottomNotch.position.set(0, -1.30, 0.15);
+      card.add(bottomNotch);
+
+      const cardGlow = new THREE.PointLight(0xe65cff, 2.2, 4.0);
+      cardGlow.name = "CardPurpleGlowLight";
+      cardGlow.position.set(0, 0.2, 0.45);
+      card.add(cardGlow);
+
+      return card;
+    }
+
+    function createHexPattern(width, height, z) {
+      const group = new THREE.Group();
+      const mat = new THREE.LineBasicMaterial({
+        color: 0x9a4cff,
+        transparent: true,
+        opacity: 0.07,
+        blending: THREE.AdditiveBlending
+      });
+
+      const r = 0.055;
+      const dx = r * 1.75;
+      const dy = r * 1.52;
+      for (let y = -height / 2; y <= height / 2; y += dy) {
+        for (let x = -width / 2; x <= width / 2; x += dx) {
+          const offsetX = Math.round((y + height / 2) / dy) % 2 === 0 ? 0 : dx / 2;
+          const pts = [];
+          for (let i = 0; i < 6; i++) {
+            const a = Math.PI / 3 * i + Math.PI / 6;
+            pts.push(new THREE.Vector3(x + offsetX + Math.cos(a) * r, y + Math.sin(a) * r, z));
+          }
+          const geo = new THREE.BufferGeometry().setFromPoints(pts);
+          group.add(new THREE.LineLoop(geo, mat));
+        }
+      }
+      return group;
+    }
+
+    function createMultiplierEmblem() {
+      const group = new THREE.Group();
+
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0xe95cff,
+        transparent: true,
+        opacity: 0.78,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      const outerRing = new THREE.Mesh(new THREE.RingGeometry(0.59, 0.625, 128), ringMaterial);
+      outerRing.name = "OuterEmblemRing";
+      group.add(outerRing);
+
+      const innerRing = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.445, 128), ringMaterial.clone());
+      innerRing.name = "InnerEmblemRing";
+      innerRing.material.opacity = 0.56;
+      group.add(innerRing);
+
+      const aura = new THREE.Mesh(
+        new THREE.CircleGeometry(0.72, 128),
+        new THREE.MeshBasicMaterial({
+          color: 0xc03cff,
+          transparent: true,
+          opacity: 0.13,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      aura.name = "PurpleEmblemAura";
+      aura.position.z = -0.01;
+      group.add(aura);
+
+      const tickMat = new THREE.MeshBasicMaterial({
+        color: 0xffc4ff,
+        transparent: true,
+        opacity: 0.68,
+        blending: THREE.AdditiveBlending
+      });
+
+      for (let i = 0; i < 12; i++) {
+        const tick = new THREE.Mesh(new THREE.BoxGeometry(0.018, i % 3 === 0 ? 0.13 : 0.07, 0.012), tickMat);
+        const a = (Math.PI * 2 * i) / 12;
+        tick.position.set(Math.cos(a) * 0.52, Math.sin(a) * 0.52, 0.02);
+        tick.rotation.z = a;
+        tick.name = `ClockTick_${i}`;
+        group.add(tick);
+      }
+
+      const text2x = createTextSprite("2x", {
+        width: 700,
+        height: 300,
+        fontSize: 160,
+        textColor: "#ffc8ff",
+        glowColor: "rgba(244,80,255,0.95)"
+      });
+      text2x.name = "Center2xText";
+      text2x.position.set(0, 0.005, 0.08);
+      text2x.scale.set(0.9, 0.38, 1);
+      group.add(text2x);
+
+      const light = new THREE.PointLight(0xe95cff, 3.4, 3.0);
+      light.name = "EmblemPurplePointLight";
+      light.position.set(0, 0, 0.35);
+      group.add(light);
+
+      return group;
+    }
+
+    function createDisplayPlatform() {
+      const platform = new THREE.Group();
+      platform.name = "PurpleDisplayPlatform";
+
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0xe95cff,
+        transparent: true,
+        opacity: 0.28,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      });
+
+      [0.95, 1.35, 1.75].forEach((radius, index) => {
+        const ring = new THREE.Mesh(new THREE.RingGeometry(radius, radius + 0.012, 128), ringMaterial.clone());
+        ring.name = `PlatformRing_${index}`;
+        ring.material.opacity = 0.30 - index * 0.07;
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = -1.42 + index * 0.003;
+        platform.add(ring);
+      });
+
+      return platform;
+    }
+
+    function runPreviewTests({ scene, renderer, card, composer }) {
+      assertPreview(THREE.REVISION === "164", `Expected Three.js r164, got r${THREE.REVISION}`);
+      assertPreview(renderer instanceof THREE.WebGLRenderer, "Renderer was created.");
+      assertPreview(renderer.xr.enabled === true, "WebXR flag is enabled.");
+      assertPreview(scene.getObjectByName("MultiplierPowerupCard") === card, "Multiplier card exists.");
+      assertPreview(card.userData.pickupId === "powerup.multiplier.2x", "Card has multiplier pickup metadata.");
+      assertPreview(card.userData.scoreMultiplier === 2, "Score multiplier metadata equals 2.");
+      assertPreview(card.getObjectByName("Multiplier2xEmblem") !== undefined, "2x emblem exists.");
+      assertPreview(card.getObjectByName("TitleTextMultiplier")?.isSprite === true, "Title text exists.");
+      assertPreview(card.getObjectByName("SubtitleText2xScore")?.isSprite === true, "Subtitle text exists.");
+      assertPreview(composer instanceof EffectComposer, "Bloom composer was created.");
+    }
+
+    try {
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x05020a, 0.035);
+
+      const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.01, 100);
+      camera.position.set(0, 0.35, 4.4);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.22;
+      container.appendChild(renderer.domElement);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0, 0, 0);
+      controls.enablePan = false;
+
+      scene.add(new THREE.AmbientLight(0x2b153a, 1.7));
+
+      const key = new THREE.DirectionalLight(0xffffff, 2.4);
+      key.position.set(1.8, 2.6, 3.2);
+      key.castShadow = true;
+      scene.add(key);
+
+      const purpleRim = new THREE.PointLight(0xe95cff, 4.0, 6.0);
+      purpleRim.position.set(-1.8, 1.2, 2.4);
+      scene.add(purpleRim);
+
+      const card = createMultiplierCard();
+      card.position.set(0, 0.08, 0);
+      card.rotation.x = -0.04;
+      scene.add(card);
+
+      const platform = createDisplayPlatform();
+      scene.add(platform);
+
+      const floor = new THREE.Mesh(
+        new THREE.CircleGeometry(2.9, 128),
+        new THREE.MeshStandardMaterial({
+          color: 0x07030c,
+          roughness: 0.72,
+          metalness: 0.22,
+          transparent: true,
+          opacity: 0.82
+        })
+      );
+      floor.name = "DarkPurpleReferenceFloor";
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -1.44;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      const composer = new EffectComposer(renderer);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.42, 0.52, 0.06));
+
+      runPreviewTests({ scene, renderer, card, composer });
+
+      function resize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+      }
+      window.addEventListener("resize", resize);
+
+      renderer.setAnimationLoop(() => {
+        const t = performance.now() * 0.001;
+        controls.update();
+
+        card.position.y = 0.08 + Math.sin(t * 1.25) * 0.025;
+        card.rotation.y = Math.sin(t * 0.6) * 0.035;
+
+        const emblem = card.getObjectByName("Multiplier2xEmblem");
+        const aura = emblem?.getObjectByName("PurpleEmblemAura");
+        const outerRing = emblem?.getObjectByName("OuterEmblemRing");
+        const innerRing = emblem?.getObjectByName("InnerEmblemRing");
+        const emblemLight = emblem?.getObjectByName("EmblemPurplePointLight");
+        const cardLight = card.getObjectByName("CardPurpleGlowLight");
+
+        if (outerRing) outerRing.rotation.z += 0.004;
+        if (innerRing) innerRing.rotation.z -= 0.006;
+        if (aura) aura.material.opacity = 0.12 + Math.sin(t * 3.4) * 0.035;
+        if (emblemLight) emblemLight.intensity = 3.2 + Math.sin(t * 4.2) * 0.7;
+        if (cardLight) cardLight.intensity = 2.0 + Math.sin(t * 3.1) * 0.35;
+
+        platform.rotation.y -= 0.0014;
+        composer.render();
+      });
+    } catch (error) {
+      showError(error);
+    }
+  </script>
+
+
+</body></html>
