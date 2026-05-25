@@ -18,10 +18,10 @@ import {
   PlaybackMode,
   PokeInteractable,
   RayInteractable,
-  SphereGeometry,
   World,
 } from "@iwsdk/core";
 
+import { buildOrb, type OrbRefs } from "./orb.js";
 import { BOARD, GRID, SPAN, TILE } from "./snake-constants.js";
 
 export interface SnakeBoardRefs {
@@ -30,7 +30,7 @@ export interface SnakeBoardRefs {
   boardEntity: Entity;
   board: Group;
   orbEntity: Entity;
-  orbMesh: Mesh;
+  orb: OrbRefs;
   segGeo: BoxGeometry;
   segMat: MeshStandardMaterial;
   headMat: MeshStandardMaterial;
@@ -104,17 +104,10 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
     roughness: 0.25,
   });
 
-  // Energy orb (its AudioSource plays the pickup chime).
-  const orbMesh = new Mesh(
-    new SphereGeometry(TILE * 0.36, 18, 14),
-    new MeshStandardMaterial({
-      color: 0xffb020,
-      emissive: 0xffc24a,
-      emissiveIntensity: 1.1,
-      roughness: 0.2,
-    }),
-  );
-  const orbEntity = world.createTransformEntity(orbMesh, boardEntity);
+  // Energy orb (its AudioSource plays the pickup chime). Mesh hierarchy
+  // lives in `./orb.ts`; this module only places it and attaches audio.
+  const orb = buildOrb();
+  const orbEntity = world.createTransformEntity(orb.group, boardEntity);
   orbEntity.addComponent(AudioSource, {
     src: "/audio/chime.mp3",
     positional: true,
@@ -139,7 +132,7 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
     boardEntity,
     board,
     orbEntity,
-    orbMesh,
+    orb,
     segGeo,
     segMat,
     headMat,

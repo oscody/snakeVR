@@ -4,6 +4,8 @@ import {
   Entity,
   InputComponent,
   Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
   Vector3,
   VisibilityState,
 } from "@iwsdk/core";
@@ -122,8 +124,27 @@ export class SnakeGameSystem extends createSystem({}) {
     }
 
     this.renderSnake();
-    // Orb pulse.
-    this.refs.orbMesh.scale.setScalar(1 + Math.sin(this.elapsed * 4) * 0.16);
+    this.animateOrb(delta);
+  }
+
+  /**
+   * Drive the multi-layer orb's animation each frame — scale pulse on the
+   * root group, slow yaw + tilt sway, emissive-intensity breathing on the
+   * shell, additive-halo opacity breathing, and contra-rotation on the two
+   * torus rings. Sub-meshes come directly off `OrbRefs`; no `getObjectByName`.
+   */
+  private animateOrb(delta: number) {
+    const orb = this.refs.orb;
+    orb.group.scale.setScalar(1 + Math.sin(this.elapsed * 4) * 0.16);
+    orb.group.rotation.y += delta * 0.6;
+    orb.group.rotation.x = Math.sin(this.elapsed * 0.9) * 0.08;
+
+    (orb.shell.material as MeshStandardMaterial).emissiveIntensity =
+      1.35 + Math.sin(this.elapsed * 4.2) * 0.28;
+    (orb.halo.material as MeshBasicMaterial).opacity =
+      0.16 + Math.sin(this.elapsed * 3.6) * 0.045;
+    orb.ringEquator.rotation.z += delta * 0.6;
+    orb.ringTilted.rotation.z -= delta * 0.78;
   }
 
   // --- game loop ---------------------------------------------------------
@@ -261,7 +282,7 @@ export class SnakeGameSystem extends createSystem({}) {
       }
     }
     this.orb = { x, z };
-    this.refs.orbMesh.position.set(this.lx(x), SEG_Y, this.lz(z));
+    this.refs.orb.group.position.set(this.lx(x), SEG_Y, this.lz(z));
   }
 
   private onSnake(x: number, z: number): boolean {
