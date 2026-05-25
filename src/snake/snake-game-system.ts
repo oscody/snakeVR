@@ -12,6 +12,12 @@ import {
 
 import { CorruptionBlock, spawnCorruptionBlock } from "./corruption-block.js";
 import { spawnEatPulse } from "./eat-pulse-system.js";
+import { GrowthPowerup, spawnGrowthPowerup } from "./growth-powerup.js";
+import {
+  MultiplierPowerup,
+  spawnMultiplierPowerup,
+} from "./multiplier-powerup.js";
+import { ShieldPowerup, spawnShieldPowerup } from "./shield-powerup.js";
 import {
   BOARD,
   CORRUPTION_LIFETIME,
@@ -21,8 +27,17 @@ import {
   CORRUPTION_SPAWN_RADIUS,
   DIFFICULTY,
   GRID,
+  GROWTH_EXTRA_SEGMENTS,
+  GROWTH_ORBS_PER_PICKUP,
+  MULTIPLIER_FACTOR,
+  MULTIPLIER_ORBS_PER_PICKUP,
   PLAYER_Y,
+  POWERUP_LIFETIME,
+  POWERUP_MIN_LENGTH,
+  POWERUP_SPAWN_MAX,
+  POWERUP_SPAWN_MIN,
   SEG_Y,
+  SHIELD_CHARGES_PER_PICKUP,
   START_LEN,
   TILE,
 } from "./snake-constants.js";
@@ -32,6 +47,8 @@ import {
   type SnakeBoardRefs,
 } from "./snake-board.js";
 import { getSnakeState } from "./snake-state.js";
+
+type PowerupKind = "shield" | "multiplier" | "growth";
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -72,6 +89,12 @@ export class SnakeGameSystem extends createSystem({}) {
   // --- corruption-block state ---
   private corruptionEntities: Entity[] = [];
 
+  // --- power-up state (one at a time) ---
+  private powerupEntity: Entity | null = null;
+  private powerupKind: PowerupKind | null = null;
+  private powerupTimer = 0;
+  private powerupNextSpawn = 0;
+
   init() {
     this.prevPlayerY = this.world.player.position.y;
     this.world.player.position.y = PLAYER_Y;
@@ -98,6 +121,7 @@ export class SnakeGameSystem extends createSystem({}) {
     this.cleanupFuncs.push(() => {
       this.world.player.position.y = this.prevPlayerY;
       this.disposeAllCorruption();
+      this.disposePowerup();
       disposeSnakeScene(this.refs);
     });
 
@@ -121,6 +145,7 @@ export class SnakeGameSystem extends createSystem({}) {
         this.tickTimer -= this.tickInterval;
         this.tick();
       }
+      this.updatePowerup(delta);
     }
 
     this.renderSnake();
@@ -168,11 +193,17 @@ export class SnakeGameSystem extends createSystem({}) {
     this.started = false;
 
     this.disposeAllCorruption();
+    this.disposePowerup();
+    this.powerupTimer = 0;
+    this.powerupNextSpawn = this.rollPowerupSpawnDelay();
 
     state.score.value = 0;
     state.length.value = this.body.length;
     state.speedPct.value = 0;
     state.status.value = "ready";
+    state.shieldCharges.value = 0;
+    state.multiplierOrbsLeft.value = 0;
+    state.growthOrbsLeft.value = 0;
 
     this.spawnOrb();
     this.ensureSegmentMeshes();
@@ -186,22 +217,39 @@ export class SnakeGameSystem extends createSystem({}) {
     const nx = head.x + this.dir.x;
     const nz = head.z + this.dir.z;
 
+    // Wall — shield absorbs it; snake just stays put this tick.
     if (nx < 0 || nx >= GRID || nz < 0 || nz >= GRID) {
+      if (this.consumeShieldIfAny()) return;
       this.endGame();
       return;
     }
+
     const willEat = nx === this.orb.x && nz === this.orb.z;
     const checkLen = willEat ? this.body.length : this.body.length - 1;
     for (let i = 0; i < checkLen; i++) {
       if (this.body[i].x === nx && this.body[i].z === nz) {
+        if (this.consumeShieldIfAny()) return;
         this.endGame();
         return;
       }
     }
 
+    // Corruption block — shield absorbs the hit (block disposed, no shrink);
+    // otherwise apply the normal shrink + maybe-game-over path.
     if (this.corruptionEntities.length && this.isCorruptionCell(nx, nz)) {
-      this.handleCorruptionHit(nx, nz);
-      return;
+      if (this.consumeShieldIfAny()) {
+        this.disposeCorruptionAt(nx, nz);
+        // fall through to advance body normally onto the (now empty) cell
+      } else {
+        this.handleCorruptionHit(nx, nz);
+        return;
+      }
+    }
+
+    // Power-up pickup — head moves onto the powerup tile; effect kicks in,
+    // entity disposes, snake advances normally onto the (now empty) cell.
+    if (this.powerupEntity && this.isPowerupCell(nx, nz)) {
+      this.collectPowerup();
     }
 
     this.prevBody = this.body.map((cell) => ({ ...cell }));
@@ -213,11 +261,27 @@ export class SnakeGameSystem extends createSystem({}) {
         new Vector3(this.lx(this.orb.x), SEG_Y, this.lz(this.orb.z)),
       );
       const state = getSnakeState(this.world);
-      state.score.value = state.score.peek() + 1;
+      const points =
+        state.multiplierOrbsLeft.peek() > 0 ? MULTIPLIER_FACTOR : 1;
+      state.score.value = state.score.peek() + points;
+      if (state.multiplierOrbsLeft.peek() > 0) {
+        state.multiplierOrbsLeft.value = state.multiplierOrbsLeft.peek() - 1;
+      }
       this.tickInterval = Math.max(
         this.minTick,
         this.tickInterval - this.tickStepSize,
       );
+
+      // Growth bonus: duplicate the new tail an extra N times so the snake
+      // grows by 1 + GROWTH_EXTRA_SEGMENTS instead of just 1.
+      if (state.growthOrbsLeft.peek() > 0) {
+        const tail = this.body[this.body.length - 1];
+        for (let i = 0; i < GROWTH_EXTRA_SEGMENTS; i++) {
+          this.body.push({ ...tail });
+        }
+        state.growthOrbsLeft.value = state.growthOrbsLeft.peek() - 1;
+      }
+
       state.length.value = this.body.length;
       this.publishSpeed();
       this.disposeAllCorruption();
@@ -346,19 +410,7 @@ export class SnakeGameSystem extends createSystem({}) {
    * body. Other blocks in the pair stay until the orb is eaten.
    */
   private handleCorruptionHit(nx: number, nz: number) {
-    // Find the specific block on (nx, nz) and dispose it.
-    for (let i = 0; i < this.corruptionEntities.length; i++) {
-      const e = this.corruptionEntities[i];
-      if (!e.active) continue;
-      if (
-        (e.getValue(CorruptionBlock, "cellX") as number) === nx &&
-        (e.getValue(CorruptionBlock, "cellZ") as number) === nz
-      ) {
-        e.dispose();
-        this.corruptionEntities.splice(i, 1);
-        break;
-      }
-    }
+    this.disposeCorruptionAt(nx, nz);
 
     // Slice tail segments; head still advances onto the block's old cell.
     this.prevBody = this.body.map((cell) => ({ ...cell }));
@@ -386,6 +438,191 @@ export class SnakeGameSystem extends createSystem({}) {
       if (e.active) e.dispose();
     }
     this.corruptionEntities.length = 0;
+  }
+
+  /** Find the corruption block at the given cell and dispose only it. */
+  private disposeCorruptionAt(x: number, z: number) {
+    for (let i = 0; i < this.corruptionEntities.length; i++) {
+      const e = this.corruptionEntities[i];
+      if (!e.active) continue;
+      if (
+        (e.getValue(CorruptionBlock, "cellX") as number) === x &&
+        (e.getValue(CorruptionBlock, "cellZ") as number) === z
+      ) {
+        e.dispose();
+        this.corruptionEntities.splice(i, 1);
+        return;
+      }
+    }
+  }
+
+  // --- power-ups ---------------------------------------------------------
+
+  private rollPowerupSpawnDelay(): number {
+    return (
+      POWERUP_SPAWN_MIN + Math.random() * (POWERUP_SPAWN_MAX - POWERUP_SPAWN_MIN)
+    );
+  }
+
+  /**
+   * Advance the power-up spawn timer; reap a self-despawned entity; spawn a
+   * new random power-up when the timer reaches the next-spawn threshold.
+   */
+  private updatePowerup(delta: number) {
+    if (this.powerupEntity && !this.powerupEntity.active) {
+      this.powerupEntity = null;
+      this.powerupKind = null;
+      this.powerupTimer = 0;
+      this.powerupNextSpawn = this.rollPowerupSpawnDelay();
+    }
+    if (this.powerupEntity) return;
+    if (this.body.length < POWERUP_MIN_LENGTH) return;
+    this.powerupTimer += delta;
+    if (this.powerupTimer < this.powerupNextSpawn) return;
+    this.spawnRandomPowerupAtFreeCell();
+  }
+
+  private spawnRandomPowerupAtFreeCell() {
+    let x = 0;
+    let z = 0;
+    let found = false;
+    for (let tries = 0; tries < 300; tries++) {
+      x = Math.floor(Math.random() * GRID);
+      z = Math.floor(Math.random() * GRID);
+      if (this.isCellFreeForPowerup(x, z)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      outer: for (let gx = 0; gx < GRID; gx++) {
+        for (let gz = 0; gz < GRID; gz++) {
+          if (this.isCellFreeForPowerup(gx, gz)) {
+            x = gx;
+            z = gz;
+            found = true;
+            break outer;
+          }
+        }
+      }
+    }
+    if (!found) return;
+
+    const cell = { x, z };
+    const worldPos = new Vector3(this.lx(x), SEG_Y, this.lz(z));
+    const roll = Math.floor(Math.random() * 3);
+    if (roll === 0) {
+      this.powerupKind = "shield";
+      this.powerupEntity = spawnShieldPowerup(
+        this.world,
+        this.refs.boardEntity,
+        cell,
+        worldPos,
+        POWERUP_LIFETIME,
+      );
+    } else if (roll === 1) {
+      this.powerupKind = "multiplier";
+      this.powerupEntity = spawnMultiplierPowerup(
+        this.world,
+        this.refs.boardEntity,
+        cell,
+        worldPos,
+        POWERUP_LIFETIME,
+      );
+    } else {
+      this.powerupKind = "growth";
+      this.powerupEntity = spawnGrowthPowerup(
+        this.world,
+        this.refs.boardEntity,
+        cell,
+        worldPos,
+        POWERUP_LIFETIME,
+      );
+    }
+    console.log(
+      `[Powerup] spawned ${this.powerupKind} at cell (${x}, ${z}); will despawn in ${POWERUP_LIFETIME}s`,
+    );
+  }
+
+  private isCellFreeForPowerup(x: number, z: number): boolean {
+    if (this.onSnake(x, z)) return false;
+    if (x === this.orb.x && z === this.orb.z) return false;
+    for (const e of this.corruptionEntities) {
+      if (!e.active) continue;
+      if (
+        (e.getValue(CorruptionBlock, "cellX") as number) === x &&
+        (e.getValue(CorruptionBlock, "cellZ") as number) === z
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private isPowerupCell(x: number, z: number): boolean {
+    const e = this.powerupEntity;
+    if (!e || !e.active) return false;
+    if (this.powerupKind === "shield") {
+      return (
+        (e.getValue(ShieldPowerup, "cellX") as number) === x &&
+        (e.getValue(ShieldPowerup, "cellZ") as number) === z
+      );
+    }
+    if (this.powerupKind === "multiplier") {
+      return (
+        (e.getValue(MultiplierPowerup, "cellX") as number) === x &&
+        (e.getValue(MultiplierPowerup, "cellZ") as number) === z
+      );
+    }
+    if (this.powerupKind === "growth") {
+      return (
+        (e.getValue(GrowthPowerup, "cellX") as number) === x &&
+        (e.getValue(GrowthPowerup, "cellZ") as number) === z
+      );
+    }
+    return false;
+  }
+
+  /**
+   * Snake head landed on the active power-up: bump the matching signal,
+   * dispose the entity, and reschedule the next spawn.
+   */
+  private collectPowerup() {
+    const state = getSnakeState(this.world);
+    if (this.powerupKind === "shield") {
+      state.shieldCharges.value =
+        state.shieldCharges.peek() + SHIELD_CHARGES_PER_PICKUP;
+    } else if (this.powerupKind === "multiplier") {
+      state.multiplierOrbsLeft.value =
+        state.multiplierOrbsLeft.peek() + MULTIPLIER_ORBS_PER_PICKUP;
+    } else if (this.powerupKind === "growth") {
+      state.growthOrbsLeft.value =
+        state.growthOrbsLeft.peek() + GROWTH_ORBS_PER_PICKUP;
+    }
+    AudioUtils.play(this.refs.orbEntity);
+    this.disposePowerup();
+    this.powerupTimer = 0;
+    this.powerupNextSpawn = this.rollPowerupSpawnDelay();
+  }
+
+  /**
+   * Consume one shield charge if any are available. Returns true when a
+   * charge was spent (caller should bail out of the lethal-collision path).
+   */
+  private consumeShieldIfAny(): boolean {
+    const state = getSnakeState(this.world);
+    if (state.shieldCharges.peek() <= 0) return false;
+    state.shieldCharges.value = state.shieldCharges.peek() - 1;
+    AudioUtils.play(this.refs.gameOverAudio);
+    return true;
+  }
+
+  private disposePowerup() {
+    if (this.powerupEntity && this.powerupEntity.active) {
+      this.powerupEntity.dispose();
+    }
+    this.powerupEntity = null;
+    this.powerupKind = null;
   }
 
   // --- rendering ---------------------------------------------------------

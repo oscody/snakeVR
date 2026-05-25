@@ -16,6 +16,10 @@ export interface SnakeState {
   difficulty: Signal<Difficulty>;
   /** Bumped by panel button or keyboard to ask the game system to restart. */
   newGameRequest: Signal<number>;
+  /** Active power-ups — see src/snake/<kind>-powerup.ts. */
+  shieldCharges: Signal<number>;
+  multiplierOrbsLeft: Signal<number>;
+  growthOrbsLeft: Signal<number>;
 }
 
 export function installSnakeState(world: World): SnakeState {
@@ -26,6 +30,9 @@ export function installSnakeState(world: World): SnakeState {
     status: signal<SnakeStatus>("ready"),
     difficulty: signal<Difficulty>("normal"),
     newGameRequest: signal(0),
+    shieldCharges: signal(0),
+    multiplierOrbsLeft: signal(0),
+    growthOrbsLeft: signal(0),
   };
   (world.globals as Record<string, unknown>).snake = state;
   return state;

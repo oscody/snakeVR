@@ -28,3 +28,14 @@ export const CORRUPTION_LIFETIME = 999.0;
 export const CORRUPTION_MIN_LENGTH = 2;
 export const CORRUPTION_PER_ORB = 2;
 export const CORRUPTION_SPAWN_RADIUS = 3;
+
+// Power-ups (shield / multiplier / growth) — see src/snake/<kind>-powerup.ts.
+export const POWERUP_SPAWN_MIN = 5.0;
+export const POWERUP_SPAWN_MAX = 10.0;
+export const POWERUP_LIFETIME = 10.0;
+export const POWERUP_MIN_LENGTH = 2;
+export const SHIELD_CHARGES_PER_PICKUP = 1;
+export const MULTIPLIER_ORBS_PER_PICKUP = 3;
+export const MULTIPLIER_FACTOR = 2;
+export const GROWTH_ORBS_PER_PICKUP = 3;
+export const GROWTH_EXTRA_SEGMENTS = 1;

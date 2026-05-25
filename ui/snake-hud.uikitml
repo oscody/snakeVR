@@ -64,7 +64,14 @@
     font-size: 1.4;
     color: #9aa4d4;
     text-align: center;
-    margin-bottom: 0.8;
+    margin-bottom: 0.4;
+  }
+
+  #powerup-text {
+    font-size: 1.4;
+    color: #ffb020;
+    text-align: center;
+    margin-bottom: 0.6;
   }
 
   .row {
@@ -114,6 +121,7 @@
     </div>
   </div>
   <span id="status-text">Move to begin</span>
+  <span id="powerup-text">—</span>
   <div class="row">
     <button id="btn-action" class="btn">NEW GAME</button>
     <button id="btn-exit" class="btn">EXIT TO MENU</button>

@@ -73,6 +73,25 @@ export class SnakePanelSystem extends createSystem({
       this.cleanupFuncs.push(state.status.subscribe(paint));
     }
 
+    const powerupEl = doc.getElementById("powerup-text") as UIKit.Text | null;
+    if (powerupEl) {
+      const paint = () => {
+        const parts: string[] = [];
+        if (state.shieldCharges.peek() > 0) parts.push("SHIELD");
+        const m = state.multiplierOrbsLeft.peek();
+        if (m > 0) parts.push(`2× ×${m}`);
+        const g = state.growthOrbsLeft.peek();
+        if (g > 0) parts.push(`GROW ×${g}`);
+        powerupEl.setProperties({
+          text: parts.length ? parts.join(" · ") : "—",
+        });
+      };
+      paint();
+      this.cleanupFuncs.push(state.shieldCharges.subscribe(paint));
+      this.cleanupFuncs.push(state.multiplierOrbsLeft.subscribe(paint));
+      this.cleanupFuncs.push(state.growthOrbsLeft.subscribe(paint));
+    }
+
     if (actionBtn) {
       // Label flips between NEW GAME (idle / game over) and RESTART (playing).
       const paint = (s: SnakeStatus) =>

@@ -10,6 +10,9 @@ import { requestedGame, type GameId } from "./game-hub.js";
 import { MenuPanelSystem } from "./menu-panel-system.js";
 import { CorruptionBlockSystem } from "./snake/corruption-block.js";
 import { EatPulseSystem } from "./snake/eat-pulse-system.js";
+import { GrowthPowerupSystem } from "./snake/growth-powerup.js";
+import { MultiplierPowerupSystem } from "./snake/multiplier-powerup.js";
+import { ShieldPowerupSystem } from "./snake/shield-powerup.js";
 import { SnakeGameSystem } from "./snake/snake-game-system.js";
 import { SnakePanelSystem } from "./snake/snake-panel-system.js";
 import { installSnakeState } from "./snake/snake-state.js";
@@ -55,10 +58,16 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
       .registerSystem(SnakeGameSystem, { priority: -5 })
       .registerSystem(EatPulseSystem, { priority: 0 })
       .registerSystem(CorruptionBlockSystem, { priority: 0 })
+      .registerSystem(ShieldPowerupSystem, { priority: 0 })
+      .registerSystem(MultiplierPowerupSystem, { priority: 0 })
+      .registerSystem(GrowthPowerupSystem, { priority: 0 })
       .registerSystem(SnakePanelSystem, { priority: 5 });
   };
   const stopSnake = () => {
     world.unregisterSystem(SnakePanelSystem);
+    world.unregisterSystem(GrowthPowerupSystem);
+    world.unregisterSystem(MultiplierPowerupSystem);
+    world.unregisterSystem(ShieldPowerupSystem);
     world.unregisterSystem(CorruptionBlockSystem);
     world.unregisterSystem(EatPulseSystem);
     world.unregisterSystem(SnakeGameSystem);
