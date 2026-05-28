@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perspective Shift – VR Snake</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body { margin:0; overflow:hidden; background:#020208; font-family:'Segoe UI',sans-serif; color:#fff; }
+        #canvas-container { width:100vw; height:100vh; }
+        #ui-layer {
+            position:absolute; bottom:40px; left:50%; transform:translateX(-50%);
+            text-align:center; pointer-events:none; width:100%;
+        }
+        h1 {
+            margin:0; font-family:'Orbitron',sans-serif; font-size:clamp(28px,4vw,52px);
+            font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:5px;
+        }
+        h2 {
+            margin:5px 0 0; font-family:'Orbitron',sans-serif;
+            font-size:clamp(12px,1.8vw,22px); font-weight:700; color:#88cccc;
+            text-transform:uppercase; letter-spacing:8px;
+        }
+        .instruction {
+            position:absolute; top:20px; left:50%; transform:translateX(-50%);
+            font-size:11px; color:rgba(255,255,255,.4); letter-spacing:3px;
+            text-transform:uppercase; pointer-events:none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div class="instruction">Drag to Rotate &bull; Scroll to Zoom</div>
+<div id="ui-layer"><h1>Perspective Shift</h1><h2>VR Snake</h2></div>
+
+<script>
+// ── 1. SCENE ──────────────────────────────────────────────────
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x020208, 0.016);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 500);
+camera.position.set(0, 1.5, 15);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 1.2;
+container.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.05;
+controls.minDistance = 5; controls.maxDistance = 28;
+controls.target.set(0, 0, 0);
+
+// ── 2. RENDER PASS ────────────────────────────────────────────
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(new THREE.RenderPass(scene, camera));
+
+// ── 3. LIGHTING ───────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const keyLight = new THREE.PointLight(0xffffff, 1.2, 28);
+keyLight.position.set(4, 6, 6); scene.add(keyLight);
+const cyanLight = new THREE.PointLight(0x00bbcc, 1.0, 14);
+cyanLight.position.set(-3, 1, 3); scene.add(cyanLight);
+const purpleLight = new THREE.PointLight(0x7733bb, 0.8, 14);
+purpleLight.position.set(3, -1, -2); scene.add(purpleLight);
+const fillLight = new THREE.PointLight(0x33aa55, 0.6, 10);
+fillLight.position.set(0, -3, 4); scene.add(fillLight);
+
+// ── 4. SYNTHWAVE FLOOR ────────────────────────────────────────
+const floorMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    extensions: { derivatives: true },
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+        varying vec3 vWorld;
+        void main() {
+            vec4 wp = modelMatrix * vec4(position, 1.0);
+            vWorld = wp.xyz;
+            gl_Position = projectionMatrix * viewMatrix * wp;
+        }`,
+    fragmentShader: `
+        uniform float uTime;
+        varying vec3 vWorld;
+        void main() {
+            // scrolling world-space grid
+            vec2 coord = vec2(vWorld.x, vWorld.z + uTime * 1.8);
+            vec2 g = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
+            float line = 1.0 - min(min(g.x, g.y), 1.0);
+
+            float dist = length(vWorld.xz);
+            float fade = (1.0 - smoothstep(2.0, 26.0, dist)) * 0.8;
+
+            // purple near -> cyan far
+            float ct = smoothstep(2.0, 22.0, dist);
+            vec3 col = mix(vec3(0.65, 0.0, 1.0), vec3(0.0, 0.85, 0.9), ct);
+
+            gl_FragColor = vec4(col * 0.9, line * fade);
+        }`
+});
+const synthFloor = new THREE.Mesh(new THREE.PlaneGeometry(70, 70, 100, 100), floorMat);
+synthFloor.rotation.x = -Math.PI / 2;
+synthFloor.position.y = -4.8;
+scene.add(synthFloor);
+
+// ── 6. BACKGROUND WALL GRID ────────────────────────────────────
+const bgGrid = new THREE.Mesh(
+    new THREE.PlaneGeometry(90, 55, 45, 28),
+    new THREE.MeshBasicMaterial({ color: 0x003366, wireframe: true, transparent: true, opacity: 0.07 })
+);
+bgGrid.position.z = -8; scene.add(bgGrid);
+
+// ── 7. LOGO GROUP ──────────────────────────────────────────────
+const logoGroup = new THREE.Group();
+scene.add(logoGroup);
+
+// ── 7a. ANIMATED GRADIENT RING ────────────────────────────────
+const ringMat = new THREE.ShaderMaterial({
+    uniforms: {
+        color1: { value: new THREE.Color(0x00ffee) },
+        color2: { value: new THREE.Color(0x9900ff) },
+        uTime:  { value: 0 }
+    },
+    vertexShader: `
+        varying vec3 vPos;
+        void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: `
+        uniform vec3 color1, color2; uniform float uTime;
+        varying vec3 vPos;
+        void main() {
+            float a = atan(vPos.y, vPos.x) + uTime * 0.5;
+            float t = (sin(a + 1.57) + 1.0) * 0.5;
+            gl_FragColor = vec4(mix(color1, color2, t), 1.0);
+        }`
+});
+logoGroup.add(new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.09, 20, 150), ringMat));
+
+// ── 7b. LEFT LOOP — deep extrusion + shader grid ──────────────
+function createLeftLoop() {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.quadraticCurveTo(-1.5, -1.8, -3.2, 0);
+    shape.quadraticCurveTo(-1.5,  1.8,    0, 0);
+
+    // Deeper extrusion to visually match the tube's bulk on the right
+    const extrudeSettings = { depth: 0.85, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.06, bevelThickness: 0.06 };
+    const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+    // — Shader-based procedural grid (stays crisp at any zoom) —
+    const gridFaceMat = new THREE.ShaderMaterial({
+        extensions: { derivatives: true },
+        uniforms: {
+            uLineColor: { value: new THREE.Color(0x22aa44) },
+            uBgColor:   { value: new THREE.Color(0x020d04) },
+            uGridCount: { value: 9.0 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+        fragmentShader: `
+            uniform vec3 uLineColor, uBgColor;
+            uniform float uGridCount;
+            varying vec2 vUv;
+            void main() {
+                vec2 scaled = vUv * uGridCount;
+                vec2 g = abs(fract(scaled - 0.5) - 0.5) / fwidth(scaled);
+                float line = 1.0 - min(min(g.x, g.y), 1.0);
+                // subtle inner glow falloff from line
+                vec3 col = mix(uBgColor, uLineColor, line);
+                gl_FragColor = vec4(col, 1.0);
+            }`
+    });
+
+    // Side faces get a matching dark-green glossy material
+    const sideMat = new THREE.MeshStandardMaterial({
+        color: 0x0a2a10, emissive: 0x0a2a10, roughness: 0.3, metalness: 0.5
+    });
+
+    // ExtrudeGeometry group 0 = caps (front/back), group 1 = sides
+    const mesh = new THREE.Mesh(geo, [gridFaceMat, sideMat]);
+    mesh.position.z = -0.42; // centre depth so it straddles z=0 like the tube
+
+    // Glowing green edge outline
+    mesh.add(new THREE.LineSegments(
+        new THREE.EdgesGeometry(geo),
+        new THREE.LineBasicMaterial({ color: 0x226633 })
+    ));
+
+    // Pixel snake sitting on the board
+    const pixGroup = new THREE.Group();
+    const bGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16);
+    [[-2.0,0.1,0],[-1.8,0.1,0],[-1.8,0.3,0],[-1.6,0.3,0],[-1.4,0.3,0]].forEach(p => {
+        const b = new THREE.Mesh(bGeo, new THREE.MeshBasicMaterial({ color: 0x226633 }));
+        b.position.set(...p); pixGroup.add(b);
+    });
+    const head = new THREE.Mesh(bGeo, new THREE.MeshBasicMaterial({ color: 0xaa2222 }));
+    head.position.set(-1.2, 0.3, 0); pixGroup.add(head);
+    const fruit = new THREE.Mesh(
+        new THREE.SphereGeometry(0.10, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xaa8800 })
+    );
+    fruit.position.set(-0.75, -0.45, 0.05); pixGroup.add(fruit);
+    pixGroup.position.z = 0.93; // sit on top of the extruded face
+    mesh.add(pixGroup);
+
+    return mesh;
+}
+
+// ── 7c. IRIDESCENT MATERIAL ───────────────────────────────────
+const iridMat = new THREE.ShaderMaterial({
+    uniforms: {
+        uTime:      { value: 0 },
+        uCameraPos: { value: new THREE.Vector3() }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPos;
+        void main() {
+            vec4 wp = modelMatrix * vec4(position, 1.0);
+            vWorldPos = wp.xyz;
+            vNormal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
+            gl_Position = projectionMatrix * viewMatrix * wp;
+        }`,
+    fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uCameraPos;
+        varying vec3 vNormal;
+        varying vec3 vWorldPos;
+        void main() {
+            vec3 viewDir = normalize(uCameraPos - vWorldPos);
+            float NdotV = max(dot(vNormal, viewDir), 0.0);
+            float fresnel = pow(1.0 - NdotV, 1.4);
+
+            float t = clamp(fresnel + sin(uTime * 0.7 + vWorldPos.z * 1.8) * 0.18, 0.0, 1.0);
+
+            vec3 green  = vec3(0.08, 0.95, 0.28);
+            vec3 cyan   = vec3(0.0,  0.88, 0.85);
+            vec3 purple = vec3(0.58, 0.0,  1.0);
+
+            vec3 col = t < 0.5
+                ? mix(green, cyan,   t * 2.0)
+                : mix(cyan,  purple, (t - 0.5) * 2.0);
+
+            float br = 0.9 + fresnel * 0.4;
+            gl_FragColor = vec4(col * br, 1.0);
+        }`
+});
+
+// ── 7d. RIGHT LOOP — iridescent tube + sculpted head + tongue ─
+function createRightLoop() {
+    const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.2,  0,   -0.1),
+        new THREE.Vector3( 1.5, -1.8,  0),
+        new THREE.Vector3( 3.2,  0,    0),
+        new THREE.Vector3( 1.5,  1.8,  0.2),
+        new THREE.Vector3( 0.3,  0.2,  1.0)
+    ]);
+
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 80, 0.45, 32, false), iridMat);
+
+    // Scale ring markings (use irid material so they glow too)
+    const markMat = new THREE.MeshBasicMaterial({ color: 0x338855, transparent: true, opacity: 0.5 });
+    for (let t = 0.05; t < 0.95; t += 0.14) {
+        const pt = curve.getPoint(t), tan = curve.getTangent(t);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.022, 8, 32), markMat);
+        ring.position.copy(pt);
+        ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), tan.normalize());
+        tube.add(ring);
+    }
+
+    // ── Sculpted Snake Head ───────────────────────────────────
+    const headGroup = new THREE.Group();
+
+    // Wide flat cranium (cobra-esque)
+    const cranium = new THREE.Mesh(new THREE.SphereGeometry(0.62, 28, 18), iridMat);
+    cranium.scale.set(1.45, 0.62, 1.05);
+    headGroup.add(cranium);
+
+    // Snout — tapered cylinder pointing forward
+    const snout = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.3, 0.52, 10), iridMat);
+    snout.rotation.x = -Math.PI / 2;
+    snout.position.set(0, -0.04, 0.58);
+    headGroup.add(snout);
+
+    // Nostril bumps
+    const nostrilMat = new THREE.MeshBasicMaterial({ color: 0x001200 });
+    [-0.11, 0.11].forEach(x => {
+        const n = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), nostrilMat);
+        n.position.set(x, 0.13, 0.76);
+        headGroup.add(n);
+    });
+
+    // VR Visor — wider to match the broader head
+    const visorMat = new THREE.MeshStandardMaterial({ color: 0x040406, roughness: 0.0, metalness: 0.95 });
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(1.12, 0.30, 0.54), visorMat);
+    visor.position.set(0, 0.13, 0.3);
+    // Cyan trim
+    visor.add(new THREE.Mesh(
+        new THREE.BoxGeometry(1.18, 0.36, 0.5),
+        new THREE.MeshBasicMaterial({ color: 0x44aaaa, wireframe: true })
+    ));
+    // Lens orbs
+    const lensMat = new THREE.MeshBasicMaterial({ color: 0x336688 });
+    [-0.27, 0.27].forEach(x => {
+        const lens = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 10), lensMat);
+        lens.position.set(x, 0, 0.24);
+        visor.add(lens);
+    });
+    headGroup.add(visor);
+
+    // ── Forked Tongue ─────────────────────────────────────────
+    const tongueMat  = new THREE.MeshBasicMaterial({ color: 0xcc2233, side: THREE.DoubleSide });
+    const tongueGroup = new THREE.Group();
+
+    // Shaft
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.026, 0.30, 6), tongueMat);
+    shaft.rotation.x = Math.PI / 2; shaft.position.z = 0.15;
+    tongueGroup.add(shaft);
+
+    // Forks — orient by pointing in a diagonal direction
+    const forkGeo = new THREE.CylinderGeometry(0.010, 0.018, 0.20, 6);
+    [[-1, -0.08], [1, 0.08]].forEach(([sign, xOff]) => {
+        const fork = new THREE.Mesh(forkGeo, tongueMat);
+        const dir = new THREE.Vector3(sign * 0.28, 0, 1).normalize();
+        fork.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+        fork.position.set(xOff, 0, 0.35);
+        tongueGroup.add(fork);
+    });
+
+    tongueGroup.position.set(0, -0.06, 0.74); // at snout tip
+    tongueGroup.scale.z = 0; // start hidden; animated in loop
+    headGroup.add(tongueGroup);
+
+    // Orient head at tube end
+    const endPt  = curve.getPoint(1);
+    const tangent = curve.getTangent(1);
+    headGroup.position.copy(endPt);
+    headGroup.lookAt(endPt.clone().add(tangent));
+    tube.add(headGroup);
+
+    return { tube, tongueGroup };
+}
+
+// ── 7e. NORTH/SOUTH PERSPECTIVE ARROWS ──────────────────────
+function createPerspectiveArrow(name, y, direction) {
+    const group = new THREE.Group();
+    group.name = name;
+
+    const isNorth = y > 0;
+    const mainColor = isNorth ? 0x44ffee : 0x66dd77;
+    const lineColor = isNorth ? 0xbbffff : 0xccffcc;
+
+    const mat = new THREE.MeshBasicMaterial({
+        color: mainColor,
+        transparent: true,
+        opacity: 0.62,
+        side: THREE.DoubleSide
+    });
+
+    // IMPORTANT:
+    // The north arrow used to read as pointing upward. This version forces the
+    // arrow head to point horizontally around the emblem instead:
+    //   north/top arrow  = points right
+    //   south/bottom arrow = points left
+    const fromX = direction > 0 ? -1.75 : 1.75;
+    const toX   = direction > 0 ?  1.75 : -1.75;
+    const lift  = isNorth ? 0.48 : -0.48;
+
+    const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(fromX, y, -0.96),
+        new THREE.Vector3(fromX * 0.42, y + lift, -0.96),
+        new THREE.Vector3(toX * 0.42, y + lift, -0.96),
+        new THREE.Vector3(toX, y, -0.96)
+    ]);
+
+    const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 72, 0.075, 12, false),
+        mat
+    );
+    tube.name = `${name}Body`;
+    group.add(tube);
+
+    // Arrow head is a flat triangular icon placed at the end of the curve.
+    // rotation.z = 0 points right; rotation.z = Math.PI points left.
+    const headShape = new THREE.Shape();
+    headShape.moveTo(0.34, 0);
+    headShape.lineTo(-0.22, 0.30);
+    headShape.lineTo(-0.12, 0);
+    headShape.lineTo(-0.22, -0.30);
+    headShape.closePath();
+
+    const arrowHead = new THREE.Mesh(new THREE.ShapeGeometry(headShape), mat);
+    arrowHead.name = `${name}Head`;
+    arrowHead.position.set(toX, y, -0.92);
+    arrowHead.rotation.z = direction > 0 ? 0 : Math.PI;
+    arrowHead.scale.setScalar(1.15);
+    group.add(arrowHead);
+
+    // Inner bright guide line keeps the arrow readable after bloom.
+    const pts = curve.getPoints(64);
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+    const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({
+        color: lineColor,
+        transparent: true,
+        opacity: 0.82
+    }));
+    line.name = `${name}CenterLine`;
+    line.position.z = 0.04;
+    group.add(line);
+
+    return group;
+}
+
+// Build everything
+const leftLoop = createLeftLoop();
+const { tube: rightLoop, tongueGroup } = createRightLoop();
+logoGroup.add(leftLoop);
+logoGroup.add(rightLoop);
+
+// Exactly two arrows: one north/top and one south/bottom.
+logoGroup.add(createPerspectiveArrow('NorthPerspectiveArrow',  2.62,  1));
+logoGroup.add(createPerspectiveArrow('SouthPerspectiveArrow', -2.62, -1));
+
+// Runtime sanity checks for the arrow requirement.
+const arrowObjects = logoGroup.children.filter(child => child.name === 'NorthPerspectiveArrow' || child.name === 'SouthPerspectiveArrow');
+console.assert(arrowObjects.length === 2, 'Expected exactly two perspective arrows.');
+console.assert(logoGroup.getObjectByName('NorthPerspectiveArrow'), 'Missing north/top arrow.');
+console.assert(logoGroup.getObjectByName('SouthPerspectiveArrow'), 'Missing south/bottom arrow.');
+
+logoGroup.rotation.x = -0.15;
+logoGroup.rotation.y =  0.15;
+
+// ── 8. ANIMATION ──────────────────────────────────────────────
+const clock = new THREE.Clock();
+
+function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    // Ring gradient rotation
+    ringMat.uniforms.uTime.value = t;
+
+    // Synthwave floor scroll
+    floorMat.uniforms.uTime.value = t;
+
+    // Iridescent shader — update camera position
+    iridMat.uniforms.uTime.value      = t;
+    iridMat.uniforms.uCameraPos.value.copy(camera.position);
+
+    // Logo float + gentle yaw
+    logoGroup.position.y  = Math.sin(t * 1.4) * 0.18;
+    logoGroup.rotation.y  = 0.15 + Math.sin(t * 0.45) * 0.12;
+
+    // Background drift
+    bgGrid.position.x = Math.sin(t * 0.07) * 0.4;
+
+    // Tongue flick — two quick darts then pause (3.5s cycle)
+    const tp = t % 3.5;
+    let flickZ = 0;
+    if      (tp < 0.12) flickZ = tp / 0.12;
+    else if (tp < 0.26) flickZ = 1 - (tp - 0.12) / 0.14;
+    else if (tp < 0.38) flickZ = (tp - 0.26) / 0.12;
+    else if (tp < 0.52) flickZ = 1 - (tp - 0.38) / 0.14;
+    tongueGroup.scale.z = flickZ;
+
+    controls.update();
+    composer.render();
+}
+
+// ── 9. RESIZE ─────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+    composer.setSize(innerWidth, innerHeight);
+});
+
+window.onload = () => animate();
+</script>
+</body>
+</html>
