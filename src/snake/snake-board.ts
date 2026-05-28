@@ -109,7 +109,7 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
   const orb = buildOrb();
   const orbEntity = world.createTransformEntity(orb.group, boardEntity);
   orbEntity.addComponent(AudioSource, {
-    src: "/audio/chime.mp3",
+    src: "audio/chime.mp3",
     positional: true,
     volume: 0.9,
     playbackMode: PlaybackMode.Restart,
@@ -118,7 +118,7 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
   // Non-positional game-over sound.
   const gameOverAudio = world.createTransformEntity(new Group(), rootEntity);
   gameOverAudio.addComponent(AudioSource, {
-    src: "/audio/chime.mp3",
+    src: "audio/chime.mp3",
     positional: false,
     volume: 0.7,
     playbackMode: PlaybackMode.Restart,
