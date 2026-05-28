@@ -61,6 +61,7 @@ function createLeafShape(s: number): Shape {
 }
 
 function buildLeaf(
+  name: string,
   scale: number,
   rotation: number,
   position: [number, number, number],
@@ -87,6 +88,7 @@ function buildLeaf(
       opacity: 0.94,
     }),
   );
+  leaf.name = name;
   leaf.position.set(position[0], position[1], position[2]);
   leaf.rotation.z = rotation;
 
@@ -103,6 +105,7 @@ function buildLeaf(
       blending: AdditiveBlending,
     }),
   );
+  outline.name = `${name}Outline`;
   leaf.add(outline);
 
   // Diagonal vein.
@@ -118,6 +121,7 @@ function buildLeaf(
       blending: AdditiveBlending,
     }),
   );
+  vein.name = `${name}Vein`;
   leaf.add(vein);
 
   return leaf;
@@ -187,13 +191,31 @@ function buildGrowthEmblem(): GrowthPowerupRefs {
 
   // Three leaves at varying scales/positions.
   group.add(
-    buildLeaf(TILE * 0.55, -0.25, [TILE * 0.115, TILE * 0.1, TILE * 0.1], 0x8dff63),
+    buildLeaf(
+      "GrowthLeafTop",
+      TILE * 0.55,
+      -0.25,
+      [TILE * 0.115, TILE * 0.1, TILE * 0.1],
+      0x8dff63,
+    ),
   );
   group.add(
-    buildLeaf(TILE * 0.38, -1.05, [-TILE * 0.165, -TILE * 0.04, TILE * 0.1], 0x73ec51),
+    buildLeaf(
+      "GrowthLeafLeft",
+      TILE * 0.38,
+      -1.05,
+      [-TILE * 0.165, -TILE * 0.04, TILE * 0.1],
+      0x73ec51,
+    ),
   );
   group.add(
-    buildLeaf(TILE * 0.42, -0.78, [TILE * 0.16, -TILE * 0.18, TILE * 0.1], 0x7cff58),
+    buildLeaf(
+      "GrowthLeafRight",
+      TILE * 0.42,
+      -0.78,
+      [TILE * 0.16, -TILE * 0.18, TILE * 0.1],
+      0x7cff58,
+    ),
   );
 
   // 12 perimeter tick marks (pale mint).
@@ -210,6 +232,7 @@ function buildGrowthEmblem(): GrowthPowerupRefs {
       new BoxGeometry(TILE * 0.012, long ? TILE * 0.1 : TILE * 0.055, TILE * 0.01),
       tickMat,
     );
+    tick.name = `GrowthTick-${i}`;
     tick.position.set(Math.cos(a) * TILE * 0.44, Math.sin(a) * TILE * 0.44, TILE * 0.03);
     tick.rotation.z = a;
     group.add(tick);
@@ -226,6 +249,7 @@ export function spawnGrowthPowerup(
   maxAge: number,
 ): Entity {
   const refs = buildGrowthEmblem();
+  refs.group.name = `GrowthPowerupCell-${cell.x}-${cell.z}`;
   refs.group.position.copy(worldPos);
   const entity = world.createTransformEntity(refs.group, parent);
   entity.addComponent(GrowthPowerup, {

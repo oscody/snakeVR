@@ -346,6 +346,7 @@ export class SnakeGameSystem extends createSystem({}) {
       }
     }
     this.orb = { x, z };
+    this.refs.orb.group.name = `EnergyOrbCell-${x}-${z}`;
     this.refs.orb.group.position.set(this.lx(x), SEG_Y, this.lz(z));
   }
 
@@ -659,6 +660,9 @@ export class SnakeGameSystem extends createSystem({}) {
         this.refs.segGeo,
         isHead ? this.refs.headMat : this.refs.segMat,
       );
+      mesh.name = isHead
+        ? "SnakeHeadSegment"
+        : `SnakeBodySegment-${this.segMeshes.length}`;
       this.refs.board.add(mesh);
       this.segMeshes.push(mesh);
     }

@@ -129,10 +129,12 @@ function buildCorruptionVisual(): CorruptionVisualRefs {
 
   const crackGroup = new Group();
   crackGroup.name = "EmissiveCrackNetwork";
-  for (const path of buildCrackPaths()) {
+  for (const [i, path] of buildCrackPaths().entries()) {
     const hot = makeCrackLine(path, hotMat);
+    hot.name = `CorruptionCrackHot-${i}`;
     crackGroup.add(hot);
     const glow = makeCrackLine(path, glowMat);
+    glow.name = `CorruptionCrackGlow-${i}`;
     glow.scale.setScalar(1.02);
     crackGroup.add(glow);
   }
@@ -149,8 +151,9 @@ function buildCorruptionVisual(): CorruptionVisualRefs {
     [HALF, HALF * 0.5, -HALF],
   ];
   const nodes: Mesh[] = [];
-  for (const [x, y, z] of nodePositions) {
+  for (const [i, [x, y, z]] of nodePositions.entries()) {
     const node = new Mesh(nodeGeo, nodeMat);
+    node.name = `CorruptionLavaNode-${i}`;
     node.position.set(x, y, z);
     nodes.push(node);
     group.add(node);
@@ -167,6 +170,7 @@ export function spawnCorruptionBlock(
   maxAge: number,
 ): Entity {
   const visual = buildCorruptionVisual();
+  visual.group.name = `CorruptionBlockCell-${cell.x}-${cell.z}`;
   visual.group.position.copy(worldPos);
   const entity = world.createTransformEntity(visual.group, parent);
   entity.addComponent(CorruptionBlock, {

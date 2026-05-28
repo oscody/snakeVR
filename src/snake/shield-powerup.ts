@@ -187,6 +187,7 @@ function buildShieldEmblem(): ShieldPowerupRefs {
       new BoxGeometry(TILE * 0.012, long ? TILE * 0.1 : TILE * 0.055, TILE * 0.01),
       tickMat,
     );
+    tick.name = `ShieldTick-${i}`;
     tick.position.set(Math.cos(a) * TILE * 0.5, Math.sin(a) * TILE * 0.5, TILE * 0.03);
     tick.rotation.z = a;
     group.add(tick);
@@ -203,6 +204,7 @@ export function spawnShieldPowerup(
   maxAge: number,
 ): Entity {
   const refs = buildShieldEmblem();
+  refs.group.name = `ShieldPowerupCell-${cell.x}-${cell.z}`;
   refs.group.position.copy(worldPos);
   const entity = world.createTransformEntity(refs.group, parent);
   entity.addComponent(ShieldPowerup, {

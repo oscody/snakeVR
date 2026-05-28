@@ -131,6 +131,7 @@ function buildMultiplierEmblem(): MultiplierPowerupRefs {
       new BoxGeometry(TILE * 0.015, long ? TILE * 0.11 : TILE * 0.06, TILE * 0.01),
       tickMat,
     );
+    tick.name = `MultiplierTick-${i}`;
     tick.position.set(Math.cos(a) * TILE * 0.44, Math.sin(a) * TILE * 0.44, TILE * 0.02);
     tick.rotation.z = a;
     tickGroup.add(tick);
@@ -161,6 +162,7 @@ export function spawnMultiplierPowerup(
   maxAge: number,
 ): Entity {
   const refs = buildMultiplierEmblem();
+  refs.group.name = `MultiplierPowerupCell-${cell.x}-${cell.z}`;
   refs.group.position.copy(worldPos);
   const entity = world.createTransformEntity(refs.group, parent);
   entity.addComponent(MultiplierPowerup, {

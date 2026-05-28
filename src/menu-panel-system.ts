@@ -56,6 +56,7 @@ export class MenuPanelSystem extends createSystem({
     });
 
     this.menuRoot = new Group();
+    this.menuRoot.name = "SnakeMenuPanel";
     this.menuRoot.position.set(MENU_POS.x, MENU_POS.y, MENU_POS.z);
     const entity = this.world.createTransformEntity(this.menuRoot);
     entity

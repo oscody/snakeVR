@@ -47,14 +47,20 @@ export interface SnakeBoardRefs {
  */
 export function buildSnakeBoard(world: World): SnakeBoardRefs {
   const gameRoot = new Group();
+  gameRoot.name = "SnakeGameRoot";
   const rootEntity = world.createTransformEntity(gameRoot);
 
-  gameRoot.add(new AmbientLight(0xffffff, 0.55));
+  const ambient = new AmbientLight(0xffffff, 0.55);
+  ambient.name = "SnakeAmbientLight";
+  gameRoot.add(ambient);
+
   const dir = new DirectionalLight(0xffffff, 0.7);
+  dir.name = "SnakeKeyLight";
   dir.position.set(0.5, 2.2, 0.6);
   gameRoot.add(dir);
 
   const board = new Group();
+  board.name = "SnakeBoardRoot";
   board.position.set(BOARD.x, BOARD.y, BOARD.z);
   const boardEntity = world.createTransformEntity(board, rootEntity);
 
@@ -72,11 +78,13 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
       side: DoubleSide,
     }),
   );
+  plate.name = "SnakeBoardPlate";
   plate.rotation.x = -Math.PI / 2;
   board.add(plate);
 
   // Neon tile grid.
   const grid = new GridHelper(SPAN, GRID, 0x46e0c0, 0x1f5560);
+  grid.name = "SnakeTileGrid";
   grid.position.y = 0.001;
   board.add(grid);
 
@@ -85,6 +93,7 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
     new EdgesGeometry(new BoxGeometry(SPAN, TILE * 0.8, SPAN)),
     new LineBasicMaterial({ color: 0x46e0c0 }),
   );
+  frame.name = "SnakeBoundaryFrame";
   frame.position.y = TILE * 0.4;
   board.add(frame);
 
@@ -116,7 +125,12 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
   });
 
   // Non-positional game-over sound.
-  const gameOverAudio = world.createTransformEntity(new Group(), rootEntity);
+  const gameOverAudioHost = new Group();
+  gameOverAudioHost.name = "SnakeGameOverAudio";
+  const gameOverAudio = world.createTransformEntity(
+    gameOverAudioHost,
+    rootEntity,
+  );
   gameOverAudio.addComponent(AudioSource, {
     src: "audio/chime.mp3",
     positional: false,
@@ -149,7 +163,7 @@ export function buildSnakeBoard(world: World): SnakeBoardRefs {
  */
 function buildHudPanel(world: World, boardEntity: Entity): Entity {
   const host = new Group();
-  host.name = "snakeHudPanel";
+  host.name = "SnakeHudPanel";
   host.position.set(0, 0.85, 0);
   const entity = world.createTransformEntity(host, boardEntity);
   entity
