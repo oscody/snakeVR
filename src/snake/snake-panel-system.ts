@@ -13,7 +13,7 @@ import { getSnakeState, type SnakeStatus } from "./snake-state.js";
 const STATUS_LABEL: Record<SnakeStatus, string> = {
   ready: "Move to begin",
   playing: "Steer to grow",
-  gameOver: "GAME OVER — press NEW GAME",
+  gameOver: "GAME OVER - press NEW GAME",
 };
 
 /**
@@ -83,7 +83,7 @@ export class SnakePanelSystem extends createSystem({
         const g = state.growthOrbsLeft.peek();
         if (g > 0) parts.push(`GROW ×${g}`);
         powerupEl.setProperties({
-          text: parts.length ? parts.join(" · ") : "—",
+          text: parts.length ? parts.join(" · ") : "-",
         });
       };
       paint();

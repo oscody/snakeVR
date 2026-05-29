@@ -121,7 +121,7 @@
     </div>
   </div>
   <span id="status-text">Move to begin</span>
-  <span id="powerup-text">—</span>
+  <span id="powerup-text">-</span>
   <div class="row">
     <button id="btn-action" class="btn">NEW GAME</button>
     <button id="btn-exit" class="btn">EXIT TO MENU</button>
